@@ -23,7 +23,7 @@ class HybridProtocol(TS6Protocol):
 
     def post_connect(self):
         """Initializes a connection to a server."""
-        ts = self.start_ts
+        self.start_ts
         f = self.send
 
         # https://github.com/grawity/irc-docs/blob/master/server/ts6.txt#L80
@@ -255,7 +255,7 @@ class HybridProtocol(TS6Protocol):
         """
 
         target = args[0]
-        ts = args[1]
+        args[1]
         modes = args[2:]
         parsedmodes = self.parse_modes(target, modes)
 

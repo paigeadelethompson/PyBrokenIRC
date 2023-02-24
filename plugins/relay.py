@@ -617,7 +617,6 @@ def initialize_channel(irc, channel):
 
     log.debug('(%s) relay.initialize_channel being called on %s', irc.name, channel)
     log.debug('(%s) relay.initialize_channel: relay pair found to be %s', irc.name, relay)
-    queued_users = []
     if relay:
         all_links = db[relay]['links'].copy()
         all_links.update((relay,))
@@ -1576,7 +1575,7 @@ def handle_messages(irc, numeric, command, args):
         # For consistency, only read messages from clientbot networks if relay_clientbot is loaded
         return
 
-    relay = get_relay(irc, target)
+    get_relay(irc, target)
     remoteusers = relayusers[(irc.name, numeric)]
 
     avail_prefixes = {v: k for k, v in irc.prefixmodes.items()}
@@ -2035,12 +2034,12 @@ utils.add_hook(handle_mode, 'MODE')
 def handle_topic(irc, numeric, command, args):
     channel = args['channel']
     oldtopic = args.get('oldtopic')
-    topic = args['text']
+    args['text']
 
     if check_claim(irc, channel, numeric):
         def _handle_topic_loop(irc, remoteirc, numeric, command, args):
             channel = args['channel']
-            oldtopic = args.get('oldtopic')
+            args.get('oldtopic')
             topic = args['text']
 
             remotechan = get_remote_channel(irc, remoteirc, channel)

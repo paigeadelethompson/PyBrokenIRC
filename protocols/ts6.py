@@ -310,7 +310,7 @@ class TS6Protocol(TS6BaseProtocol):
 
     def post_connect(self):
         """Initializes a connection to a server."""
-        ts = self.start_ts
+        self.start_ts
 
         f = self.send
 
@@ -551,7 +551,7 @@ class TS6Protocol(TS6BaseProtocol):
 
         # Statekeeping with timestamps
         their_ts = int(args[0])
-        our_ts = self._channels[channel].ts
+        self._channels[channel].ts
         self.updateTS(servernumeric, channel, their_ts, changedmodes)
 
         return {'channel': channel, 'users': namelist, 'modes': parsedmodes, 'ts': their_ts,
@@ -726,7 +726,7 @@ class TS6Protocol(TS6BaseProtocol):
         """
         # <- :charybdis.midnight.vpn 472 jlu5|devel O :is an unknown mode char to me
         badmode = args[1]
-        reason = args[-1]
+        args[-1]
         setter = args[0]
         charlist = {'A': 'chm_adminonly', 'O': 'chm_operonly', 'S': 'chm_sslonly',
                     'T': 'chm_nonotice'}

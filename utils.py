@@ -38,7 +38,6 @@ class NotAuthorizedError(Exception):
     """
     Exception raised by the PyLink permissions system when a user fails access requirements.
     """
-    pass
 
 
 class InvalidArgumentsError(TypeError):
@@ -436,7 +435,7 @@ class ServiceBot():
         """
         Removes a persistent channel from the service bot on the given network and namespace.
         """
-        chanlist = self.dynamic_channels[namespace][irc.name].remove(channel)
+        self.dynamic_channels[namespace][irc.name].remove(channel)
 
         if try_part and irc.connected.is_set() and irc.has_cap('can-manage-bot-channels'):
             self.part(irc, [channel], reason=part_reason)
@@ -522,7 +521,7 @@ class ServiceBot():
                        % (len(funcs), command, ', '.join([func.__module__ for func in funcs])))
             for func in funcs:
                 doc = func.__doc__
-                mod = func.__module__
+                func.__module__
                 if doc:
                     lines = doc.splitlines()
                     # Bold the first line, which usually just tells you what

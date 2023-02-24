@@ -2,7 +2,6 @@ import unittest
 import unittest.mock
 
 from pylinkirc.protocols import clientbot
-from pylinkirc.classes import User
 
 import protocol_test_fixture as ptf
 

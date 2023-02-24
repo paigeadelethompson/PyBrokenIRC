@@ -507,11 +507,11 @@ class IRCS2SProtocol(IRCCommonProtocol):
         if '!' in args[1].split(" ", 1)[0]:
             try:
                 # Get the nick or server name of the caller.
-                killer = self.get_friendly_name(source)
+                self.get_friendly_name(source)
             except KeyError:
                 # Killer was... neither? We must have aliens or something. Fallback
                 # to the given "UID".
-                killer = source
+                pass
 
             # Get the reason, which is enclosed in brackets.
             killmsg = ' '.join(args[1].split(" ")[1:])[1:-1]

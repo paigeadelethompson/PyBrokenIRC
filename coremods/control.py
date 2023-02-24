@@ -104,7 +104,7 @@ signal.signal(signal.SIGINT, _sigterm_handler)
 def rehash():
     """Rehashes the PyLink daemon."""
     log.info('Reloading PyLink configuration...')
-    old_conf = conf.conf.copy()
+    conf.conf.copy()
     fname = conf.fname
     new_conf = conf.load_conf(fname, errors_fatal=False, logger=log)
     conf.conf = new_conf

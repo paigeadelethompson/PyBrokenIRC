@@ -406,7 +406,7 @@ class UnrealProtocol(TS6BaseProtocol):
 
     def post_connect(self):
         """Initializes a connection to a server."""
-        ts = self.start_ts
+        self.start_ts
         self.prefixmodes = {'q': '~', 'a': '&', 'o': '@', 'h': '%', 'v': '+'}
 
         # Track usages of legacy (Unreal 3.2) nicks.
@@ -718,7 +718,7 @@ class UnrealProtocol(TS6BaseProtocol):
 
                 self._channels[channel].users.add(user)
 
-        our_ts = self._channels[channel].ts
+        self._channels[channel].ts
         their_ts = int(args[0])
         self.updateTS(numeric, channel, their_ts, changedmodes)
 

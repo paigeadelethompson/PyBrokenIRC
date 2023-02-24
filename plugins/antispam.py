@@ -348,7 +348,6 @@ def handle_textfilter(irc, source, command, args):
                 return
         elif watch_pms == 'all':
             log.debug("(%s) antispam.textfilters: checking all PMs (watch_pms='all')", irc.name)
-            pass
         else:
             # Not a channel.
             log.debug("(%s) antispam.textfilters: skipping processing; %r is not a channel and watch_pms is disabled", irc.name, target)

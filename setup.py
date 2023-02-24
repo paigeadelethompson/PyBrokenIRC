@@ -8,7 +8,7 @@ if sys.version_info < (3, 7):
     raise RuntimeError("PyLink requires Python 3.7 or higher.")
 
 try:
-    from setuptools import setup, find_packages
+    from setuptools import setup
 except ImportError:
     raise ImportError("Please install Setuptools and try again.")
 

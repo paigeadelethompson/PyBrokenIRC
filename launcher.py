@@ -22,7 +22,7 @@ def _main():
     conf.load_conf(args.config)
 
     from pylinkirc.log import log
-    from pylinkirc import classes, utils, coremods, selectdriver
+    from pylinkirc import selectdriver, utils
 
     # Write and check for an existing PID file unless specifically told not to.
     if not args.no_pid:

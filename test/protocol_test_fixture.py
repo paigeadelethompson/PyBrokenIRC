@@ -104,7 +104,7 @@ class BaseProtocolTest(unittest.TestCase):
     def test_get_service_bot(self):
         self.assertFalse(self.p.get_service_bot('nonexistent'))
 
-        regular_user = self._make_user('Guest12345', 'Guest12345@1')
+        self._make_user('Guest12345', 'Guest12345@1')
         service_user = self._make_user('MyServ', 'MyServ@2')
         service_user.service = 'myserv'
 

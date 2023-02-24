@@ -129,7 +129,6 @@ class P10Protocol(IRCS2SProtocol):
         'RI': 'RPING',
         'RO': 'RPONG',
         'S': 'SERVER',
-        'SERVSET': 'SERVLIST',
         'SERVSET': 'SERVSET',
         'SET': 'SET',
         'SE': 'SETTIME',
@@ -216,7 +215,7 @@ class P10Protocol(IRCS2SProtocol):
             return socket.inet_ntoa(ip)
 
         elif len(ip) <= 24 or '_' in ip:  # IPv6
-            s = ''
+            pass
             # P10-encoded IPv6 addresses are formed with chunks, where each 16-bit
             # portion of the address (each part between :'s) is encoded as 3 B64 chars.
             # A single :: is translated into an underscore (_).
@@ -1173,7 +1172,7 @@ class P10Protocol(IRCS2SProtocol):
 
         # Statekeeping with timestamps
         their_ts = int(args[1])
-        our_ts = self._channels[channel].ts
+        self._channels[channel].ts
         self.updateTS(source, channel, their_ts, changedmodes)
 
         return {'channel': channel, 'users': namelist, 'modes': parsedmodes, 'ts': their_ts,

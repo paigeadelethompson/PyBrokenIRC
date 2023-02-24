@@ -137,7 +137,7 @@ def reload(irc, source, args):
 
     Loads a plugin from the plugin folder."""
     try:
-        name = args[0]
+        args[0]
     except IndexError:
         irc.reply("Error: Not enough arguments. Needs 1: plugin name.")
         return

@@ -14,7 +14,7 @@ def timediff(before, now):
     Returns the time difference between "before" and "now" as a formatted string.
     """
     td = datetime.timedelta(seconds=now - before)
-    days = td.days
+    td.days
 
     hours, leftover = divmod(td.seconds, 3600)
     minutes, seconds = divmod(leftover, 60)

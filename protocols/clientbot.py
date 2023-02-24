@@ -251,7 +251,7 @@ class ClientbotWrapperProtocol(ClientbotBaseProtocol, IRCCommonProtocol):
         self.sidgen = PUIDGenerator('ClientbotInternalSID')
 
         self.has_eob = False
-        ts = self.start_ts
+        self.start_ts
         def f(text): return self.send(text, queue=False)
 
         # Enumerate our own server
@@ -784,7 +784,7 @@ class ClientbotWrapperProtocol(ClientbotBaseProtocol, IRCCommonProtocol):
         # with WHO %cuhsnfar (WHOX) - note, hopcount and realname are separate!
         #                                0   1     2   3         4                      5  6  7   8(-1)
         # <- :charybdis.midnight.vpn 354 ice #test ~jlu5 localhost charybdis.midnight.vpn jlu5 H*@ jlu5 :realname
-        channel = args[1]
+        args[1]
         ident = args[2]
         host = args[3]
         nick = args[5]
