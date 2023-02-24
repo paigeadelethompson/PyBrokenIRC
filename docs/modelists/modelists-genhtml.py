@@ -15,9 +15,11 @@ FILES = {
     'extbans.csv': 'Supported Extbans for PyLink',
 }
 
+
 def _write(outf, text):
     print(text, end='')
     outf.write(text)
+
 
 def _format(articlename, text):
     # More formatting
@@ -40,6 +42,7 @@ def _format(articlename, text):
     else:
         text = '<td class="tablecell-na note">n/a</td>'
     return text
+
 
 for fname, title in FILES.items():
     outfname = os.path.splitext(fname)[0] + '.html'

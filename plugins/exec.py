@@ -19,6 +19,7 @@ if not conf.conf['pylink'].get("debug_enabled", False):
                        "This should ONLY be used in test environments for debugging and development, "
                        "as anyone with access to this plugin's commands can run arbitrary code as the PyLink user!")
 
+
 def _exec(irc, source, args, locals_dict=None):
     """<code>
 
@@ -47,7 +48,10 @@ def _exec(irc, source, args, locals_dict=None):
     exec(args, globals(), locals_dict)
 
     irc.reply("Done.")
+
+
 utils.add_cmd(_exec, 'exec')
+
 
 @utils.add_cmd
 def iexec(irc, source, args):
@@ -62,6 +66,7 @@ def iexec(irc, source, args):
     \x02**WARNING: THIS CAN BE DANGEROUS IF USED IMPROPERLY!**\x02
     """
     _exec(irc, source, args, locals_dict=exec_locals_dict)
+
 
 def _eval(irc, source, args, locals_dict=None, pretty_print=False):
     """<Python expression>
@@ -101,7 +106,9 @@ def _eval(irc, source, args, locals_dict=None, pretty_print=False):
         # 'peval' is specifically designed to work around that.
         irc.reply(repr(result), wrap=False)
 
+
 utils.add_cmd(_eval, 'eval')
+
 
 @utils.add_cmd
 def peval(irc, source, args):
@@ -112,6 +119,7 @@ def peval(irc, source, args):
     \x02**WARNING: THIS CAN BE DANGEROUS IF USED IMPROPERLY!**\x02
     """
     _eval(irc, source, args, pretty_print=True)
+
 
 @utils.add_cmd
 def ieval(irc, source, args):
@@ -127,6 +135,7 @@ def ieval(irc, source, args):
     """
     _eval(irc, source, args, locals_dict=exec_locals_dict)
 
+
 @utils.add_cmd
 def pieval(irc, source, args):
     """<Python expression>
@@ -136,6 +145,7 @@ def pieval(irc, source, args):
     \x02**WARNING: THIS CAN BE DANGEROUS IF USED IMPROPERLY!**\x02
     """
     _eval(irc, source, args, locals_dict=exec_locals_dict, pretty_print=True)
+
 
 @utils.add_cmd
 def inject(irc, source, args):
@@ -154,6 +164,7 @@ def inject(irc, source, args):
     log.info('(%s) Injecting raw text %r into protocol module for %s', irc.name,
              args, irc.get_hostmask(source))
     irc.reply(repr(irc.parse_irc_command(args)))
+
 
 @utils.add_cmd
 def threadinfo(irc, source, args):

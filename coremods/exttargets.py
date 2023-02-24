@@ -15,6 +15,7 @@ def bind(func):
     world.exttarget_handlers[func.__name__] = func
     return func
 
+
 @bind
 def account(irc, host, uid):
     """
@@ -62,6 +63,7 @@ def account(irc, host, uid):
         # user's login, and the user is connected on the network requested.
         return slogin and (irc.to_lower(groups[1]) in ('*', slogin)) and (homenet == groups[2])
 
+
 @bind
 def ircop(irc, host, uid):
     """
@@ -81,6 +83,7 @@ def ircop(irc, host, uid):
     else:
         # 2nd scenario. Match the opertype glob to the opertype.
         return irc.match_text(groups[1], irc.users[uid].opertype)
+
 
 @bind
 def server(irc, host, uid):
@@ -102,6 +105,7 @@ def server(irc, host, uid):
         return sid == query or irc.match_text(query, irc.get_friendly_name(sid))
     # $server alone is invalid. Don't match anything.
     return False
+
 
 @bind
 def channel(irc, host, uid):
@@ -132,6 +136,7 @@ def channel(irc, host, uid):
         # For things like #channel:op, check if the query is in the user's prefix modes.
         return (uid in irc.channels[channel].users) and (groups[2].lower() in irc.channels[channel].get_prefix_modes(uid))
 
+
 @bind
 def pylinkacc(irc, host, uid):
     """
@@ -151,6 +156,7 @@ def pylinkacc(irc, host, uid):
     elif len(groups) == 2:
         # Second scenario. Return True if the user's login matches the one given.
         return login == groups[1]
+
 
 @bind
 def network(irc, host, uid):
@@ -175,6 +181,8 @@ def network(irc, host, uid):
     return homenet == targetnet
 
 # Note: "and" can't be a function name so we use this.
+
+
 def exttarget_and(irc, host, uid):
     """
     $and exttarget handler. This exttarget takes a series of exttargets (or hostmasks) joined with
@@ -196,7 +204,10 @@ def exttarget_and(irc, host, uid):
     log.debug('exttargets_and: using raw subtargets list %r (original query=%r)', targets, host)
     # Wrap every subtarget into irc.match_host and return True if all subtargets return True.
     return all(map(lambda sub_exttarget: irc.match_host(sub_exttarget, uid), targets))
+
+
 world.exttarget_handlers['and'] = exttarget_and
+
 
 @bind
 def realname(irc, host, uid):
@@ -209,6 +220,7 @@ def realname(irc, host, uid):
     groups = host.split(':')
     if len(groups) >= 2:
         return irc.match_text(groups[1], irc.users[uid].realname)
+
 
 @bind
 def service(irc, host, uid):

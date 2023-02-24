@@ -14,6 +14,8 @@ pwd_context = None
 _DEFAULT_CRYPTCONTEXT_SETTINGS = {
     'schemes': ["pbkdf2_sha256", "sha512_crypt"]
 }
+
+
 def _make_cryptcontext():
     try:
         from passlib.context import CryptContext
@@ -31,7 +33,9 @@ def _make_cryptcontext():
         log.debug("Updated CryptContext with settings: %s", context_settings)
         pwd_context.update(**context_settings)
 
+
 _make_cryptcontext()  # This runs at startup and in rehash (control.py)
+
 
 def _get_account(accountname):
     """
@@ -45,6 +49,7 @@ def _get_account(accountname):
         return accounts[accountname.lower()]
     except KeyError:
         return False
+
 
 def check_login(user, password):
     """Checks whether the given user and password is a valid combination."""
@@ -65,6 +70,7 @@ def check_login(user, password):
 
     return False
 
+
 def verify_hash(password, passhash):
     """Checks whether the password given matches the hash."""
     if password:
@@ -74,6 +80,7 @@ def verify_hash(password, passhash):
 
         return pwd_context.verify(password, passhash)
     return False  # No password given!
+
 
 def _irc_try_login(irc, source, username, skip_checks=False):
     """Internal function to process logins via IRC."""
@@ -107,6 +114,7 @@ def _irc_try_login(irc, source, username, skip_checks=False):
              irc.name, username, irc.get_hostmask(source))
     return True
 
+
 def identify(irc, source, args):
     """<username> <password>
 
@@ -135,5 +143,6 @@ def identify(irc, source, args):
     # Username not found or password incorrect.
     log.warning("(%s) Failed login to %r from %s", irc.name, username, irc.get_hostmask(source))
     raise utils.NotAuthorizedError('Bad username or password.')
+
 
 utils.add_cmd(identify, aliases=('login', 'id'))

@@ -6,8 +6,10 @@ from pylinkirc.log import log
 mydesc = ("Provides anti-spam functionality.")
 sbot = utils.register_service("antispam", default_nick="AntiSpam", desc=mydesc)
 
+
 def die(irc=None):
     utils.unregister_service("antispam")
+
 
 _UNICODE_CHARMAP = {
     'A': 'AΑАᎪᗅᴀ𝐀𝐴𝑨𝒜𝓐𝔄𝔸𝕬𝖠𝗔𝘈𝘼𝙰𝚨𝛢𝜜𝝖𝞐',
@@ -70,6 +72,7 @@ _UNICODE_CHARMAP = {
     '#': '＃﹟'
 }
 
+
 def _prep_maketrans(data):
     from_s = ''
     to_s = ''
@@ -79,11 +82,14 @@ def _prep_maketrans(data):
 
     return str.maketrans(from_s, to_s)
 
+
 UNICODE_CHARMAP = _prep_maketrans(_UNICODE_CHARMAP)
 
 PUNISH_OPTIONS = ['kill', 'ban', 'quiet', 'kick', 'block']
 EXEMPT_OPTIONS = ['voice', 'halfop', 'op']
 DEFAULT_EXEMPT_OPTION = 'halfop'
+
+
 def _punish(irc, target, channel, punishment, reason):
     """Punishes the target user. This function returns True if the user was successfully punished."""
     if target not in irc.users:
@@ -126,12 +132,15 @@ def _punish(irc, target, channel, punishment, reason):
 
     def _ban():
         bans.add(irc.make_channel_ban(target))
+
     def _quiet():
         bans.add(irc.make_channel_ban(target, ban_type='quiet'))
+
     def _kick():
         irc.kick(my_uid, channel, target, reason)
         irc.call_hooks([my_uid, 'ANTISPAM_KICK', {'channel': channel, 'text': reason, 'target': target,
                                                   'parse_as': 'KICK'}])
+
     def _kill():
         if target not in irc.users:
             log.debug('(%s) antispam: not killing %s/%s; they already left', irc.name, target,
@@ -201,6 +210,7 @@ def _punish(irc, target, channel, punishment, reason):
 
     return bool(successful_punishments)
 
+
 MASSHIGHLIGHT_DEFAULTS = {
     'min_length': 50,
     'min_nicks': 5,
@@ -208,6 +218,8 @@ MASSHIGHLIGHT_DEFAULTS = {
     'punishment': 'kick+ban',
     'enabled': False
 }
+
+
 def handle_masshighlight(irc, source, command, args):
     """Handles mass highlight attacks."""
     channel = args['target']
@@ -279,6 +291,7 @@ def handle_masshighlight(irc, source, command, args):
               len(nicks_caught), min_nicks, channel)
     return not punished  # Filter this message from relay, etc. if it triggered protection
 
+
 utils.add_hook(handle_masshighlight, 'PRIVMSG', priority=1000)
 utils.add_hook(handle_masshighlight, 'NOTICE', priority=1000)
 
@@ -289,6 +302,8 @@ TEXTFILTER_DEFAULTS = {
     'enabled': False,
     'munge_unicode': True,
 }
+
+
 def handle_textfilter(irc, source, command, args):
     """Antispam text filter handler."""
     target = args['target']
@@ -341,7 +356,7 @@ def handle_textfilter(irc, source, command, args):
 
     # Merge together global and local textfilter lists.
     txf_globs = set(conf.conf.get('antispam', {}).get('textfilter_globs', [])) | \
-                set(irc.serverdata.get('antispam_textfilter_globs', []))
+        set(irc.serverdata.get('antispam_textfilter_globs', []))
 
     punishment = txf_settings.get('punishment', TEXTFILTER_DEFAULTS['punishment']).lower()
     reason = txf_settings.get('reason', TEXTFILTER_DEFAULTS['reason'])
@@ -364,6 +379,7 @@ def handle_textfilter(irc, source, command, args):
 
     return not punished  # Filter this message from relay, etc. if it triggered protection
 
+
 utils.add_hook(handle_textfilter, 'PRIVMSG', priority=999)
 utils.add_hook(handle_textfilter, 'NOTICE', priority=999)
 
@@ -373,6 +389,8 @@ PARTQUIT_DEFAULTS = {
     'part_filter_message': "Reason filtered",
     'quit_filter_message': "Reason filtered",
 }
+
+
 def handle_partquit(irc, source, command, args):
     """Antispam part/quit message filter."""
     text = args.get('text')
@@ -388,7 +406,7 @@ def handle_partquit(irc, source, command, args):
 
     # Merge together global and local partquit filter lists.
     pq_globs = set(conf.conf.get('antispam', {}).get('partquit_globs', [])) | \
-               set(irc.serverdata.get('antispam_partquit_globs', []))
+        set(irc.serverdata.get('antispam_partquit_globs', []))
     if not pq_globs:
         return
 
@@ -405,5 +423,7 @@ def handle_partquit(irc, source, command, args):
                          irc.name, args['userdata'].nick, filterglob)
             args['text'] = filtered_message
             break
+
+
 utils.add_hook(handle_partquit, 'PART', priority=999)
 utils.add_hook(handle_partquit, 'QUIT', priority=999)

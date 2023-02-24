@@ -26,6 +26,7 @@ def spawnclient(irc, source, args):
     irc.spawn_client(nick, ident, host, manipulatable=True)
     irc.reply("Done.")
 
+
 @utils.add_cmd
 def quit(irc, source, args):
     """<target> [<reason>]
@@ -57,6 +58,7 @@ def quit(irc, source, args):
     irc.quit(u, quitmsg)
     irc.reply("Done.")
     irc.call_hooks([u, 'PYLINK_BOTSPLUGIN_QUIT', {'text': quitmsg, 'parse_as': 'QUIT'}])
+
 
 def joinclient(irc, source, args):
     """[<target>] <channel1>[,<channel2>,<channel3>,...]
@@ -99,7 +101,7 @@ def joinclient(irc, source, args):
     for channel in clist:
         real_channel = channel.lstrip(''.join(prefix_to_mode))
         # XXX we need a better way to do this, but only the other option I can think of is regex...
-        prefixes = channel[:len(channel)-len(real_channel)]
+        prefixes = channel[:len(channel) - len(real_channel)]
         joinmodes = ''.join(prefix_to_mode[prefix] for prefix in prefixes)
 
         if not irc.is_channel(real_channel):
@@ -119,9 +121,12 @@ def joinclient(irc, source, args):
 
         # Signal the join to other plugins
         irc.call_hooks([u, 'PYLINK_BOTSPLUGIN_JOIN', {'channel': real_channel, 'users': [u],
-                                                     'modes': modes, 'parse_as': 'JOIN'}])
+                                                      'modes': modes, 'parse_as': 'JOIN'}])
     irc.reply("Done.")
+
+
 utils.add_cmd(joinclient, name='join')
+
 
 @utils.add_cmd
 def nick(irc, source, args):
@@ -158,6 +163,7 @@ def nick(irc, source, args):
     irc.reply("Done.")
     # Signal the nick change to other plugins
     irc.call_hooks([u, 'PYLINK_BOTSPLUGIN_NICK', {'newnick': newnick, 'oldnick': nick, 'parse_as': 'NICK'}])
+
 
 @utils.add_cmd
 def part(irc, source, args):
@@ -206,6 +212,7 @@ def part(irc, source, args):
     irc.reply("Done.")
     irc.call_hooks([u, 'PYLINK_BOTSPLUGIN_PART', {'channels': clist, 'text': reason, 'parse_as': 'PART'}])
 
+
 def msg(irc, source, args):
     """[<source>] <target> <text>
 
@@ -240,7 +247,7 @@ def msg(irc, source, args):
 
     try:
         int_u = int(target)
-    except:
+    except BaseException:
         int_u = None
 
     if int_u and int_u in irc.users:
@@ -264,4 +271,6 @@ def msg(irc, source, args):
     irc.message(sourceuid, real_target, text)
     irc.reply("Done.")
     irc.call_hooks([sourceuid, 'PYLINK_BOTSPLUGIN_MSG', {'target': real_target, 'text': text, 'parse_as': 'PRIVMSG'}])
+
+
 utils.add_cmd(msg, aliases=('say',))

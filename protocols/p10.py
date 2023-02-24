@@ -25,6 +25,7 @@ class P10UIDGenerator(UIDGenerator):
         length = 3
         super().__init__(uidchars, length, sid)
 
+
 def p10b64encode(num, length=2):
     """
     Encodes a given numeric using P10 Base64 numeric nicks, as documented at
@@ -34,6 +35,7 @@ def p10b64encode(num, length=2):
     sidbytes = struct.pack('>I', num)[1:]
     sid = base64.b64encode(sidbytes, b'[]')[-length:]
     return sid.decode()  # Return a string, not bytes.
+
 
 class P10SIDGenerator():
     def __init__(self, irc):
@@ -65,7 +67,9 @@ class P10SIDGenerator():
         self.currentnum += 1
         return sid
 
+
 GLINE_MAX_EXPIRE = 604800
+
 
 class P10Protocol(IRCS2SProtocol):
     COMMAND_TOKENS = {
@@ -231,9 +235,9 @@ class P10Protocol(IRCS2SProtocol):
             # Each B64-encoded section is 3 characters long. Split them up and
             # iterate.
             for section in range(0, len(head), 3):
-                byteshead += base64.b64decode('A' + head[section:section+3], '[]')[1:]
+                byteshead += base64.b64decode('A' + head[section:section + 3], '[]')[1:]
             for section in range(0, len(tail), 3):
-                bytestail += base64.b64decode('A' + tail[section:section+3], '[]')[1:]
+                bytestail += base64.b64decode('A' + tail[section:section + 3], '[]')[1:]
 
             ipbytes = byteshead
 
@@ -273,11 +277,11 @@ class P10Protocol(IRCS2SProtocol):
             encoded_ip = 'AAA' + encoded_ip
         return encoded_ip
 
-    ### COMMANDS
+    # COMMANDS
 
     def spawn_client(self, nick, ident='null', host='null', realhost=None, modes=set(),
-            server=None, ip='0.0.0.0', realname=None, ts=None, opertype='IRC Operator',
-            manipulatable=False):
+                     server=None, ip='0.0.0.0', realname=None, ts=None, opertype='IRC Operator',
+                     manipulatable=False):
         """
         Spawns a new client with the given options.
 
@@ -574,7 +578,7 @@ class P10Protocol(IRCS2SProtocol):
             log.debug('(%s) Lowering GLINE duration on %s@%s from %s to %s', self.name, user, host, duration, GLINE_MAX_EXPIRE)
             duration = GLINE_MAX_EXPIRE
 
-        self._send_with_prefix(source, 'GL * +%s@%s %s %s %s :%s' % (user, host, duration, currtime, currtime+duration, reason))
+        self._send_with_prefix(source, 'GL * +%s@%s %s %s %s :%s' % (user, host, duration, currtime, currtime + duration, reason))
 
     def sjoin(self, server, channel, users, ts=None, modes=set()):
         """Sends an SJOIN for a group of users to a channel.
@@ -665,8 +669,8 @@ class P10Protocol(IRCS2SProtocol):
                 # Wrap all users and send them to prevent cutoff. Subtract 4 off the maximum
                 # buf size to account for user prefix data that may be re-added (e.g. ":ohv")
                 for linenum, wrapped_msg in \
-                        enumerate(utils.wrap_arguments(msgprefix, namelist, self.S2S_BUFSIZE-1-len(self.prefixmodes),
-                                                      separator=',')):
+                        enumerate(utils.wrap_arguments(msgprefix, namelist, self.S2S_BUFSIZE - 1 - len(self.prefixmodes),
+                                                       separator=',')):
                     if linenum:  # Implies "if linenum > 0"
                         # XXX: Ugh, this postprocessing sucks, but we have to make sure that mode prefixes are accounted
                         # for in the burst.
@@ -738,8 +742,8 @@ class P10Protocol(IRCS2SProtocol):
             raise ValueError('Invalid server name %r' % name)
 
         self.servers[sid] = Server(self, uplink, name, internal=True, desc=desc)
-        self._send_with_prefix(uplink, 'SERVER %s %s %s %s P10 %s]]] +h6 :%s' % \
-                   (name, self.servers[sid].hopcount, self.start_ts, int(time.time()), sid, desc))
+        self._send_with_prefix(uplink, 'SERVER %s %s %s %s P10 %s]]] +h6 :%s' %
+                               (name, self.servers[sid].hopcount, self.start_ts, int(time.time()), sid, desc))
 
         return sid
 
@@ -768,7 +772,7 @@ class P10Protocol(IRCS2SProtocol):
         creationts = self._channels[target].ts
 
         self._send_with_prefix(source, 'T %s %s %s %s :%s' % (target, sendername, creationts,
-                   int(time.time()), text))
+                                                              int(time.time()), text))
         self._channels[target].topic = text
         self._channels[target].topicset = True
     topic_burst = topic
@@ -820,7 +824,7 @@ class P10Protocol(IRCS2SProtocol):
         # Note: we don't need to send any hooks here, _check_cloak_change does that for us.
         self._check_cloak_change(target)
 
-    ### HANDLERS
+    # HANDLERS
 
     def handle_events(self, data):
         """
@@ -868,12 +872,12 @@ class P10Protocol(IRCS2SProtocol):
                       'stripcolor': 'S', 'had_delayjoin': 'd', 'regonly': 'r',
                       '*A': 'be', '*B': 'AUk', '*C': 'Ll', '*D': 'psmtinrDRaOMNzQCTcSd'}
             self.umodes.update({'servprotect': 'k', 'sno_debug': 'g', 'cloak': 'x', 'privdeaf': 'D',
-                                    'hidechans': 'n', 'deaf_commonchan': 'q', 'bot': 'B', 'deaf': 'd',
-                                    'hideoper': 'H', 'hideidle': 'I', 'regdeaf': 'R', 'showwhois': 'W',
-                                    'admin': 'a', 'override': 'X', 'noforward': 'L', 'ssl': 'z',
-                                    'registered': 'r', 'cloak_sethost': 'h', 'cloak_fakehost': 'f',
-                                    'cloak_hashedhost': 'C', 'cloak_hashedip': 'c', 'locop': 'O',
-                                    '*A': '', '*B': '', '*C': 'fCcrh', '*D': 'oOiwskgxnqBdDHIRWaXLz'})
+                                'hidechans': 'n', 'deaf_commonchan': 'q', 'bot': 'B', 'deaf': 'd',
+                                'hideoper': 'H', 'hideidle': 'I', 'regdeaf': 'R', 'showwhois': 'W',
+                                'admin': 'a', 'override': 'X', 'noforward': 'L', 'ssl': 'z',
+                                'registered': 'r', 'cloak_sethost': 'h', 'cloak_fakehost': 'f',
+                                'cloak_hashedhost': 'C', 'cloak_hashedip': 'c', 'locop': 'O',
+                                '*A': '', '*B': '', '*C': 'fCcrh', '*D': 'oOiwskgxnqBdDHIRWaXLz'})
             # Nefarious supports extbans as documented at
             # https://github.com/evilnet/nefarious2/blob/master/doc/extendedbans.txt
             self.extbans_matching.update({
@@ -897,17 +901,17 @@ class P10Protocol(IRCS2SProtocol):
             # From https://www.quakenet.org/help/general/what-user-modes-are-available-on-quakenet
             # plus my own testing.
             self.umodes.update({'servprotect': 'k', 'sno_debug': 'g', 'cloak': 'x',
-                                    'hidechans': 'n', 'deaf': 'd', 'hideidle': 'I', 'regdeaf': 'R',
-                                    'override': 'X', 'registered': 'r', 'cloak_sethost': 'h', 'locop': 'O',
-                                    '*A': '', '*B': '', '*C': 'h', '*D': 'imnpstrkgxndIRXO'})
+                                'hidechans': 'n', 'deaf': 'd', 'hideidle': 'I', 'regdeaf': 'R',
+                                'override': 'X', 'registered': 'r', 'cloak_sethost': 'h', 'locop': 'O',
+                                '*A': '', '*B': '', '*C': 'h', '*D': 'imnpstrkgxndIRXO'})
         elif p10_ircd == 'ircu':
             # ircu proper has even fewer modes.
             cmodes = {'oplevel_apass': 'A', 'oplevel_upass': 'U', 'delayjoin': 'D', 'regonly': 'r',
                       'had_delayjoin': 'd', 'blockcolor': 'c', 'noctcp': 'C', 'registered': 'R',
                       '*A': 'b', '*B': 'AUk', '*C': 'l', '*D': 'imnpstrDdRcC'}
             self.umodes.update({'servprotect': 'k', 'sno_debug': 'g', 'cloak': 'x',
-                                    'deaf': 'd', 'registered': 'r', 'locop': 'O',
-                                    '*A': '', '*B': '', '*C': '', '*D': 'imnpstrkgxdO'})
+                                'deaf': 'd', 'registered': 'r', 'locop': 'O',
+                                '*A': '', '*B': '', '*C': '', '*D': 'imnpstrkgxdO'})
 
         if self.serverdata.get('use_halfop'):
             cmodes['halfop'] = 'h'
@@ -1045,9 +1049,9 @@ class P10Protocol(IRCS2SProtocol):
 
         # Propagate a hostname update to plugins, but only if the changed host is different.
         if newhost != uobj.host:
-             self.call_hooks([uid, 'CHGHOST', {'target': uid, 'newhost': newhost}])
+            self.call_hooks([uid, 'CHGHOST', {'target': uid, 'newhost': newhost}])
         if ident != uobj.ident:
-             self.call_hooks([uid, 'CHGIDENT', {'target': uid, 'newident': ident}])
+            self.call_hooks([uid, 'CHGIDENT', {'target': uid, 'newident': ident}])
         uobj.host = newhost
         uobj.ident = ident
 
@@ -1272,7 +1276,7 @@ class P10Protocol(IRCS2SProtocol):
 
             # Check if each mode matches any that we're unsetting.
             if modechar in modes:
-                if modechar in (self.cmodes['*A']+self.cmodes['*B']+''.join(self.prefixmodes.keys())):
+                if modechar in (self.cmodes['*A'] + self.cmodes['*B'] + ''.join(self.prefixmodes.keys())):
                     # Mode is a list mode, prefix mode, or one that always takes a parameter when unsetting.
                     changedmodes.append(('-%s' % modechar, data))
                 else:
@@ -1350,7 +1354,8 @@ class P10Protocol(IRCS2SProtocol):
         # <- ABAAA WH #magichouse :% test
         # <- ABAAA WV #magichouse :+ test
         prefix, text = args[-1].split(' ', 1)
-        return {'target': prefix+args[0], 'text': text}
+        return {'target': prefix + args[0], 'text': text}
     handle_wallhops = handle_wallvoices = handle_wallchops
+
 
 Class = P10Protocol

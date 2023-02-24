@@ -8,6 +8,7 @@ from pylinkirc.log import log
 
 DEFAULT_FORMAT = "[$sender@$fullnetwork] $text"
 
+
 def g(irc, source, args):
     """<message text>
 
@@ -59,5 +60,6 @@ def g(irc, source, args):
                 chancount += 1
 
     irc.reply('Done. Sent to %d channels across %d networks.' % (chancount, netcount))
+
 
 utils.add_cmd(g, "global", featured=True)

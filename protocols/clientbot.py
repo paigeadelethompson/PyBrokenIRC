@@ -24,6 +24,7 @@ FALLBACK_REALNAME = 'PyLink Relay Mirror Client'
 IRCV3_CAPABILITIES = {'multi-prefix', 'sasl', 'away-notify', 'userhost-in-names', 'chghost', 'account-notify',
                       'account-tag', 'extended-join'}
 
+
 class ClientbotBaseProtocol(PyLinkNetworkCoreWithUtils):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -40,7 +41,7 @@ class ClientbotBaseProtocol(PyLinkNetworkCoreWithUtils):
 
         To prevent message spoofing, this will only return an external (non-PyLink) client or the PyLink bot itself.
         """
-        #log.debug('(%s) _get_UID: searching for nick %s', self.name, nick, stack_info=True)
+        # log.debug('(%s) _get_UID: searching for nick %s', self.name, nick, stack_info=True)
         idsource = self.nick_to_uid(nick, filterfunc=lambda uid: uid == self.pseudoclient.uid or not self.is_internal_client(uid))
 
         if idsource is None and spawn_new:
@@ -112,8 +113,8 @@ class ClientbotBaseProtocol(PyLinkNetworkCoreWithUtils):
 
     # Note: clientbot clients are initialized with umode +i by default
     def spawn_client(self, nick, ident='unknown', host='unknown.host', realhost=None, modes={('i', None)},
-            server=None, ip='0.0.0.0', realname='', ts=None, opertype=None,
-            manipulatable=False):
+                     server=None, ip='0.0.0.0', realname='', ts=None, opertype=None,
+                     manipulatable=False):
         """
         STUB: Pretends to spawn a new client with a subset of the given options.
         """
@@ -194,19 +195,20 @@ class ClientbotBaseProtocol(PyLinkNetworkCoreWithUtils):
             u.ident = text
             if not self.is_internal_client(target):
                 self.call_hooks([self.sid, 'CHGIDENT',
-                                   {'target': target, 'newident': text}])
+                                 {'target': target, 'newident': text}])
         elif field == 'HOST' and u.host != text:
             u.host = text
             if not self.is_internal_client(target):
                 self.call_hooks([self.sid, 'CHGHOST',
-                                   {'target': target, 'newhost': text}])
+                                 {'target': target, 'newhost': text}])
         elif field in ('REALNAME', 'GECOS') and u.realname != text:
             u.realname = text
             if not self.is_internal_client(target):
                 self.call_hooks([self.sid, 'CHGNAME',
-                                   {'target': target, 'newgecos': text}])
+                                 {'target': target, 'newgecos': text}])
         else:
             return  # Nothing changed
+
 
 class ClientbotWrapperProtocol(ClientbotBaseProtocol, IRCCommonProtocol):
     def __init__(self, *args, **kwargs):
@@ -250,7 +252,7 @@ class ClientbotWrapperProtocol(ClientbotBaseProtocol, IRCCommonProtocol):
 
         self.has_eob = False
         ts = self.start_ts
-        f = lambda text: self.send(text, queue=False)
+        def f(text): return self.send(text, queue=False)
 
         # Enumerate our own server
         self.sid = self.sidgen.next_sid()
@@ -291,7 +293,6 @@ class ClientbotWrapperProtocol(ClientbotBaseProtocol, IRCCommonProtocol):
                                  self.uidgen.next_uid(prefix='@ClientbotInternal'), self.sid,
                                  ident=ident, realname=realname, host=self.hostname())
         self.users[self.pseudoclient.uid] = self.pseudoclient
-
 
     def invite(self, client, target, channel):
         """Invites a user to a channel."""
@@ -494,7 +495,7 @@ class ClientbotWrapperProtocol(ClientbotBaseProtocol, IRCCommonProtocol):
             self._set_account_name(idsource, tags.get('account'))
 
         try:
-            func = getattr(self, 'handle_'+command.lower())
+            func = getattr(self, 'handle_' + command.lower())
         except AttributeError:  # unhandled command
             pass
         else:
@@ -707,7 +708,7 @@ class ClientbotWrapperProtocol(ClientbotBaseProtocol, IRCCommonProtocol):
 
         names = set()
         modes = set()
-        prefix_to_mode = {v:k for k, v in self.prefixmodes.items()}
+        prefix_to_mode = {v: k for k, v in self.prefixmodes.items()}
         prefixes = ''.join(self.prefixmodes.values())
 
         # N.B. only split on spaces because of color in hosts nonsense...
@@ -733,8 +734,8 @@ class ClientbotWrapperProtocol(ClientbotBaseProtocol, IRCCommonProtocol):
 
             # Queue these virtual users to be joined if they're not already in the channel,
             # or we're waiting for a kick acknowledgment for them.
-            if (idsource not in self._channels[channel].users) or (idsource in \
-                    self.kick_queue.get(channel, ([],))[0]):
+            if (idsource not in self._channels[channel].users) or (idsource in
+                                                                   self.kick_queue.get(channel, ([],))[0]):
                 names.add(idsource)
             self.users[idsource].channels.add(channel)
             if host:
@@ -1229,5 +1230,6 @@ class ClientbotWrapperProtocol(ClientbotBaseProtocol, IRCCommonProtocol):
 
     handle_405 = handle_473 = handle_474 = handle_475 = handle_476 = handle_477 = \
         handle_479 = handle_489 = handle_495 = handle_520 = handle_471
+
 
 Class = ClientbotWrapperProtocol

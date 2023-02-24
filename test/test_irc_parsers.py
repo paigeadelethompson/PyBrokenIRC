@@ -3,6 +3,8 @@ Runs IRC parser tests from ircdocs/parser-tests.
 
 This test suite runs static code only.
 """
+from pylinkirc.protocols.ircs2s_common import IRCCommonProtocol
+from pylinkirc import utils
 from pathlib import Path
 import unittest
 
@@ -11,8 +13,6 @@ import yaml
 PARSER_DATA_PATH = Path(__file__).parent.resolve() / 'parser-tests' / 'tests'
 print(PARSER_DATA_PATH)
 
-from pylinkirc import utils
-from pylinkirc.protocols.ircs2s_common import IRCCommonProtocol
 
 class MessageParserTest(unittest.TestCase):
     @classmethod
@@ -100,10 +100,10 @@ class MessageParserTest(unittest.TestCase):
                 self.assertEqual(test['valid'], IRCCommonProtocol.is_server_name(test['host']),
                                  "Failed test for %r; should be %s" % (test['host'], test['valid']))
 
-
     # N.B. skipping msg-join tests because PyLink doesn't think about messages that way
 
-    ### Custom test cases
+    # Custom test cases
+
     def testMessageSplitSpaces(self):
         # Test that tokenization ignores empty fields, but doesn't strip away other types of whitespace
         f = IRCCommonProtocol.parse_prefixed_args
@@ -113,6 +113,7 @@ class MessageParserTest(unittest.TestCase):
                          ["123LOLWUT", "MODE", "##", "+ov", "\x1f", "checking"])
         self.assertEqual(f(":123LOLWUT MODE  ## +ov  \u3000  checking"),
                          ["123LOLWUT", "MODE", "##", "+ov", "\u3000", "checking"])
+
 
 if __name__ == '__main__':
     unittest.main()

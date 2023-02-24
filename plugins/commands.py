@@ -8,14 +8,17 @@ from pylinkirc.coremods.login import pwd_context
 
 default_permissions = {"*!*@*": ['commands.status', 'commands.showuser', 'commands.showchan', 'commands.shownet']}
 
+
 def main(irc=None):
     """Commands plugin main function, called on plugin load."""
     # Register our permissions.
     permissions.add_default_permissions(default_permissions)
 
+
 def die(irc=None):
     """Commands plugin die function, called on plugin unload."""
     permissions.remove_default_permissions(default_permissions)
+
 
 @utils.add_cmd
 def status(irc, source, args):
@@ -30,8 +33,11 @@ def status(irc, source, args):
         irc.reply('You are not identified as anyone.')
     irc.reply('Operator access: \x02%s\x02' % bool(irc.is_oper(source)))
 
+
 _none = '\x1D(none)\x1D'
 _notavail = '\x1DN/A\x1D'
+
+
 def _do_showuser(irc, source, u):
     """Helper function for showuser."""
     # Some protocol modules store UIDs as ints; make sure we check for that.
@@ -51,11 +57,11 @@ def _do_showuser(irc, source, u):
         irc.error('Unknown user %r.' % u)
         return
 
-    f = lambda s: irc.reply('  ' + s, private=True)
+    def f(s): return irc.reply('  ' + s, private=True)
 
     userobj = irc.users[u]
     irc.reply('Showing information on user \x02%s\x02 (%s@%s): %s' % (userobj.nick, userobj.ident,
-               userobj.host, userobj.realname), private=True)
+                                                                      userobj.host, userobj.realname), private=True)
 
     sid = irc.get_server(u)
     serverobj = irc.servers[sid]
@@ -70,11 +76,11 @@ def _do_showuser(irc, source, u):
         f('\x02Home server\x02: %s; \x02Nick TS:\x02 %s' % (serverinfo or _notavail, tsinfo or _notavail))
 
     if verbose:  # Oper/self only data: user modes, channels in, account info, etc.
-        f('\x02Protocol UID\x02: %s; \x02Real host\x02: %s; \x02IP\x02: %s' % \
+        f('\x02Protocol UID\x02: %s; \x02Real host\x02: %s; \x02IP\x02: %s' %
           (u, userobj.realhost or _notavail, userobj.ip))
         channels = sorted(userobj.channels)
         f('\x02Channels\x02: %s' % (' '.join(map(str, channels)) or _none))
-        f('\x02PyLink identification\x02: %s; \x02Services account\x02: %s; \x02Away status\x02: %s' % \
+        f('\x02PyLink identification\x02: %s; \x02Services account\x02: %s; \x02Away status\x02: %s' %
           ((userobj.account or _none), (userobj.services_account or _none), userobj.away or _none))
         f('\x02User modes\x02: %s' % irc.join_modes(userobj.modes, sort=True))
 
@@ -107,6 +113,7 @@ def _do_showuser(irc, source, u):
             if relaychannels and verbose:
                 f("\x02Relay channels\x02: %s" % ' '.join(relaychannels))
 
+
 @utils.add_cmd
 def showuser(irc, source, args):
     """<user>
@@ -123,6 +130,7 @@ def showuser(irc, source, args):
 
     for user in users:
         _do_showuser(irc, source, user)
+
 
 @utils.add_cmd
 def shownet(irc, source, args):
@@ -190,8 +198,9 @@ def shownet(irc, source, args):
         if serverdata.get('hostname'):
             irc.reply('\x02PyLink hostname\x02: %s; \x02SID:\x02 %s; \x02SID range:\x02 %s' %
                       (serverdata.get('hostname') or _none,
-                        serverdata.get('sid') or _none,
-                        serverdata.get('sidrange') or _none))
+                       serverdata.get('sid') or _none,
+                       serverdata.get('sidrange') or _none))
+
 
 @utils.add_cmd
 def showchan(irc, source, args):
@@ -208,7 +217,7 @@ def showchan(irc, source, args):
         irc.error('Unknown channel %r.' % channel)
         return
 
-    f = lambda s: irc.reply(s, private=True)
+    def f(s): return irc.reply(s, private=True)
 
     c = irc.channels[channel]
     # Only show verbose info if caller is oper or is in the target channel.
@@ -255,6 +264,7 @@ def showchan(irc, source, args):
                 relays += [''.join(link) for link in relay.db[relayentry]['links']]
                 f('\x02Relayed channels:\x02 %s' % (' '.join(relays)))
 
+
 @utils.add_cmd
 def version(irc, source, args):
     """takes no arguments.
@@ -263,6 +273,7 @@ def version(irc, source, args):
     py_version = utils.NORMALIZEWHITESPACE_RE.sub(' ', sys.version)
     irc.reply("PyLink version \x02%s\x02 (in VCS: %s), running on Python %s." % (__version__, real_version, py_version))
     irc.reply("The source of this program is available at \x02%s\x02." % world.source)
+
 
 @utils.add_cmd
 def echo(irc, source, args):
@@ -274,6 +285,7 @@ def echo(irc, source, args):
         irc.error('No text to send!')
         return
     irc.reply(' '.join(args))
+
 
 def _check_logout_access(irc, source, target, perms):
     """
@@ -292,6 +304,7 @@ def _check_logout_access(irc, source, target, perms):
             raise
     else:
         return True
+
 
 @utils.add_cmd
 def logout(irc, source, args):
@@ -323,7 +336,10 @@ def logout(irc, source, args):
 
     irc.reply("Done.")
 
+
 loglevels = {'DEBUG': 10, 'INFO': 20, 'WARNING': 30, 'ERROR': 40, 'CRITICAL': 50}
+
+
 @utils.add_cmd
 def loglevel(irc, source, args):
     """<level>
@@ -343,6 +359,7 @@ def loglevel(irc, source, args):
             irc.reply("Done.")
     except IndexError:
         irc.reply(world.console_handler.level)
+
 
 @utils.add_cmd
 def mkpasswd(irc, source, args):

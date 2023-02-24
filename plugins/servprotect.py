@@ -16,12 +16,15 @@ servprotect_conf = conf.conf.get('servprotect', {})
 length = servprotect_conf.get('length', 10)
 age = servprotect_conf.get('age', 10)
 
+
 def _new_cache_dict():
     return TTLCache(length, age)
+
 
 savecache = _new_cache_dict()
 killcache = _new_cache_dict()
 lock = threading.Lock()
+
 
 def handle_kill(irc, numeric, command, args):
     """
@@ -38,7 +41,9 @@ def handle_kill(irc, numeric, command, args):
             log.debug('(%s) servprotect: Incrementing killcache by 1', irc.name)
             killcache[irc.name] += 1
 
+
 utils.add_hook(handle_kill, 'KILL')
+
 
 def handle_save(irc, numeric, command, args):
     """
@@ -53,5 +58,6 @@ def handle_save(irc, numeric, command, args):
 
             log.debug('(%s) servprotect: Incrementing savecache by 1', irc.name)
             savecache[irc.name] += 1
+
 
 utils.add_hook(handle_save, 'SAVE')

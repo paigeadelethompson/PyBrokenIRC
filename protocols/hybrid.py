@@ -94,8 +94,8 @@ class HybridProtocol(TS6Protocol):
         self.send(':%s EOB' % (self.sid,))
 
     def spawn_client(self, nick, ident='null', host='null', realhost=None, modes=set(),
-            server=None, ip='0.0.0.0', realname=None, ts=None, opertype=None,
-            manipulatable=False):
+                     server=None, ip='0.0.0.0', realname=None, ts=None, opertype=None,
+                     manipulatable=False):
         """
         Spawns a new client with the given options.
 
@@ -115,16 +115,16 @@ class HybridProtocol(TS6Protocol):
         raw_modes = self.join_modes(modes)
 
         u = self.users[uid] = User(self, nick, ts, uid, server, ident=ident, host=host, realname=realname,
-            realhost=realhost, ip=ip, manipulatable=manipulatable)
+                                   realhost=realhost, ip=ip, manipulatable=manipulatable)
 
         self.apply_modes(uid, modes)
         self.servers[server].users.add(uid)
 
         self._send_with_prefix(server, "UID {nick} {hopcount} {ts} {modes} {ident} {host} {ip} {uid} "
-                "* :{realname}".format(ts=ts, host=host,
-                nick=nick, ident=ident, uid=uid,
-                modes=raw_modes, ip=ip, realname=realname,
-                hopcount=self.servers[server].hopcount))
+                               "* :{realname}".format(ts=ts, host=host,
+                                                      nick=nick, ident=ident, uid=uid,
+                                                      modes=raw_modes, ip=ip, realname=realname,
+                                                      hopcount=self.servers[server].hopcount))
         return u
 
     def update_client(self, target, field, text):
@@ -161,7 +161,7 @@ class HybridProtocol(TS6Protocol):
         # parameters: target server mask, duration, user mask, host mask, reason
         assert not (user == host == '*'), "Refusing to set ridiculous ban on *@*"
 
-        if not source in self.users:
+        if source not in self.users:
             log.debug('(%s) Forcing KLINE sender to %s as TS6 does not allow KLINEs from servers', self.name, self.pseudoclient.uid)
             source = self.pseudoclient.uid
 
@@ -188,8 +188,8 @@ class HybridProtocol(TS6Protocol):
         # <- CAPAB :UNDLN UNKLN KLN TBURST KNOCK ENCAP DLN IE EX HOPS CHW SVS CLUSTER EOB QS
         self._caps = caps = args[0].split()
         for required_cap in ('SVS', 'EOB', 'HOPS', 'QS', 'TBURST'):
-             if required_cap not in caps:
-                 raise ProtocolError('%s not found in TS6 capabilities list; this is required! (got %r)' % (required_cap, caps))
+            if required_cap not in caps:
+                raise ProtocolError('%s not found in TS6 capabilities list; this is required! (got %r)' % (required_cap, caps))
 
     def handle_uid(self, numeric, command, args):
         """
@@ -298,5 +298,6 @@ class HybridProtocol(TS6Protocol):
             self.apply_modes(target, parsedmodes)
 
         return {'target': target, 'modes': parsedmodes}
+
 
 Class = HybridProtocol

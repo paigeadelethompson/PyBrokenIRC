@@ -15,6 +15,7 @@ __all__ = []
 # Essential, core commands go here so that the "commands" plugin with less-important,
 # but still generic functions can be reloaded.
 
+
 @utils.add_cmd
 def shutdown(irc, source, args):
     """takes no arguments.
@@ -23,6 +24,7 @@ def shutdown(irc, source, args):
     permissions.check_permissions(irc, source, ['core.shutdown'])
     log.info('(%s) SHUTDOWN requested by %s, exiting...', irc.name, irc.get_hostmask(source))
     control.shutdown(irc=irc)
+
 
 @utils.add_cmd
 def load(irc, source, args):
@@ -55,6 +57,7 @@ def load(irc, source, args):
             log.debug('Calling main() function of plugin %r', pl)
             pl.main(irc=irc)
     irc.reply("Loaded plugin %r." % name)
+
 
 @utils.add_cmd
 def unload(irc, source, args):
@@ -108,7 +111,7 @@ def unload(irc, source, args):
         if hasattr(pl, 'die'):
             try:
                 pl.die(irc=irc)
-            except:  # But don't allow it to crash the server.
+            except BaseException:  # But don't allow it to crash the server.
                 log.exception('(%s) Error occurred in die() of plugin %s, skipping...', irc.name, pl)
 
         # Delete it from memory (hopefully).
@@ -127,6 +130,7 @@ def unload(irc, source, args):
     else:
         irc.reply("Unknown plugin %r." % name)
 
+
 @utils.add_cmd
 def reload(irc, source, args):
     """<plugin name>.
@@ -141,6 +145,7 @@ def reload(irc, source, args):
     # Note: these functions do permission checks, so there are none needed here.
     if unload(irc, source, args):
         load(irc, source, args)
+
 
 @utils.add_cmd
 def rehash(irc, source, args):
@@ -157,6 +162,7 @@ def rehash(irc, source, args):
         return
     else:
         irc.reply("Done.")
+
 
 @utils.add_cmd
 def clearqueue(irc, source, args):

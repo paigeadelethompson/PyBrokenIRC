@@ -10,6 +10,7 @@ from pylinkirc.log import log
 # Characters allowed in a hostname.
 allowed_chars = string.ascii_letters + '-./:' + string.digits
 
+
 def _changehost(irc, target):
     changehost_conf = conf.conf.get("changehost")
 
@@ -39,7 +40,7 @@ def _changehost(irc, target):
     # That said, it is possible to get away with this expansion if you're
     # careful enough, and that's why this hidden option exists.
     if not changehost_conf.get('force_host_expansion'):
-       del args['host']
+        del args['host']
 
     log.debug('(%s) Changehost args: %s', irc.name, args)
 
@@ -72,6 +73,7 @@ def _changehost(irc, target):
             # Only operate on the first match.
             break
 
+
 def handle_uid(irc, sender, command, args):
     """
     Changehost listener for new connections.
@@ -79,7 +81,10 @@ def handle_uid(irc, sender, command, args):
 
     target = args['uid']
     _changehost(irc, target)
+
+
 utils.add_hook(handle_uid, 'UID')
+
 
 def handle_chghost(irc, sender, command, args):
     """
@@ -103,14 +108,20 @@ def handle_chghost(irc, sender, command, args):
             userobj = irc.users.get(target)
             if userobj:
                 _changehost(irc, target)
+
+
 utils.add_hook(handle_chghost, 'CHGHOST')
+
 
 def handle_svslogin(irc, sender, command, args):
     """
     Handles services account changes for changehost.
     """
     _changehost(irc, sender)
+
+
 utils.add_hook(handle_svslogin, 'CLIENT_SERVICES_LOGIN')
+
 
 @utils.add_cmd
 def applyhosts(irc, sender, args):

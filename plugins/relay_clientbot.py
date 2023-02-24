@@ -23,6 +23,7 @@ default_styles = {'MESSAGE': '\x02[$netname]\x02 <$mode_prefix$colored_sender> $
                   'PNOTICE': '<$sender> $text',
                   }
 
+
 def color_text(s):
     """
     Returns a colorized version of the given text based on a simple hash algorithm.
@@ -33,6 +34,7 @@ def color_text(s):
     hash_output = hash(s.encode())
     num = hash_output % len(colors)
     return "\x03%s%s\x03" % (colors[num], s)
+
 
 def cb_relay_core(irc, source, command, args):
     """
@@ -88,7 +90,7 @@ def cb_relay_core(irc, source, command, args):
         # key, falling back to one defined in default_styles above, and then nothing if not found
         # there.
         text_template = irc.get_service_options('relay', 'clientbot_styles', dict).get(
-                            real_command, default_styles.get(real_command, ''))
+            real_command, default_styles.get(real_command, ''))
         text_template = string.Template(text_template)
 
         if text_template:
@@ -214,6 +216,7 @@ def cb_relay_core(irc, source, command, args):
                 # PMs are always sent as notice - this prevents unknown command loops with bots.
                 irc.msg(target, text, loopback=False, notice=private)
 
+
 utils.add_hook(cb_relay_core, 'CLIENTBOT_MESSAGE')
 utils.add_hook(cb_relay_core, 'CLIENTBOT_KICK')
 utils.add_hook(cb_relay_core, 'CLIENTBOT_PART')
@@ -223,6 +226,7 @@ utils.add_hook(cb_relay_core, 'CLIENTBOT_NICK')
 utils.add_hook(cb_relay_core, 'CLIENTBOT_SJOIN')
 utils.add_hook(cb_relay_core, 'CLIENTBOT_SQUIT')
 utils.add_hook(cb_relay_core, 'RELAY_RAW_MODE')
+
 
 @utils.add_cmd
 def rpm(irc, source, args):

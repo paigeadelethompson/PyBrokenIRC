@@ -45,41 +45,41 @@ class UtilsTestCase(unittest.TestCase):
 
     def test_remove_range(self):
         self.assertEqual(utils.remove_range(
-            "1", [1,2,3,4,5,6,7,8,9]),
-            [2,3,4,5,6,7,8,9])
+            "1", [1, 2, 3, 4, 5, 6, 7, 8, 9]),
+            [2, 3, 4, 5, 6, 7, 8, 9])
 
         self.assertEqual(utils.remove_range(
-            "2,4", [1,2,3,4,5,6,7,8,9]),
-            [1,3,5,6,7,8,9])
+            "2,4", [1, 2, 3, 4, 5, 6, 7, 8, 9]),
+            [1, 3, 5, 6, 7, 8, 9])
 
         self.assertEqual(utils.remove_range(
-            "1-4", [1,2,3,4,5,6,7,8,9]),
-            [5,6,7,8,9])
+            "1-4", [1, 2, 3, 4, 5, 6, 7, 8, 9]),
+            [5, 6, 7, 8, 9])
 
         self.assertEqual(utils.remove_range(
-            "1-3,7", [1,2,3,4,5,6,7,8,9]),
-            [4,5,6,8,9])
+            "1-3,7", [1, 2, 3, 4, 5, 6, 7, 8, 9]),
+            [4, 5, 6, 8, 9])
 
         self.assertEqual(utils.remove_range(
-            "1-3,5-9", [1,2,3,4,5,6,7,8,9]),
+            "1-3,5-9", [1, 2, 3, 4, 5, 6, 7, 8, 9]),
             [4])
 
         self.assertEqual(utils.remove_range(
-            "1-2,3-5,6-9", [1,2,3,4,5,6,7,8,9]),
+            "1-2,3-5,6-9", [1, 2, 3, 4, 5, 6, 7, 8, 9]),
             [])
 
         # Anti-patterns, but should be legal
         self.assertEqual(utils.remove_range(
-            "4,2", [1,2,3,4,5,6,7,8,9]),
-            [1,3,5,6,7,8,9])
+            "4,2", [1, 2, 3, 4, 5, 6, 7, 8, 9]),
+            [1, 3, 5, 6, 7, 8, 9])
         self.assertEqual(utils.remove_range(
-            "4,4,4", [1,2,3,4,5,6,7,8,9]),
-            [1,2,3,5,6,7,8,9])
+            "4,4,4", [1, 2, 3, 4, 5, 6, 7, 8, 9]),
+            [1, 2, 3, 5, 6, 7, 8, 9])
 
         # Empty subranges should be filtered away
         self.assertEqual(utils.remove_range(
-            ",2,,4,", [1,2,3,4,5,6,7,8,9]),
-            [1,3,5,6,7,8,9])
+            ",2,,4,", [1, 2, 3, 4, 5, 6, 7, 8, 9]),
+            [1, 3, 5, 6, 7, 8, 9])
 
         # Not enough items
         with self.assertRaises(IndexError):
@@ -181,7 +181,7 @@ class UtilsTestCase(unittest.TestCase):
 
         # Composites
         self.assertEqual(utils.parse_duration("6m10s"), 6 * 60 + 10)
-        self.assertEqual(utils.parse_duration("1d5h"), ((24+5) * 60 * 60))
+        self.assertEqual(utils.parse_duration("1d5h"), ((24 + 5) * 60 * 60))
         self.assertEqual(utils.parse_duration("2d3m4s"), (48 * 60 * 60 + 3 * 60 + 4))
 
         # Not valid: wrong order of units
@@ -260,16 +260,17 @@ class UtilsTestCase(unittest.TestCase):
         self.assertEqual(f({}, {}), {})
         self.assertEqual(f(set(), set()), set())
 
-        self.assertEqual(f([1,2], [4,5,6]), [1,2,4,5,6])
+        self.assertEqual(f([1, 2], [4, 5, 6]), [1, 2, 4, 5, 6])
         self.assertEqual(f({'a': 'b'}, {'c': 'd', 'e': 'f'}),
                          {'a': 'b', 'c': 'd', 'e': 'f'})
-        self.assertEqual(f({0,1,2}, {1,3,5}),
-                         {0,1,2,3,5})
+        self.assertEqual(f({0, 1, 2}, {1, 3, 5}),
+                         {0, 1, 2, 3, 5})
 
         with self.assertRaises(ValueError):
-            f([1,2,3], {'a': 'b'})  # mismatched type
+            f([1, 2, 3], {'a': 'b'})  # mismatched type
         with self.assertRaises(ValueError):
             f([], set())  # mismatched type
+
 
 if __name__ == '__main__':
     unittest.main()

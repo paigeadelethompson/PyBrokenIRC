@@ -19,14 +19,20 @@ def add_default_permissions(perms):
     global default_permissions
     for target, permlist in perms.items():
         default_permissions[target] |= set(permlist)
+
+
 addDefaultPermissions = add_default_permissions
+
 
 def remove_default_permissions(perms):
     """Remove default permissions from the index."""
     global default_permissions
     for target, permlist in perms.items():
         default_permissions[target] -= set(permlist)
+
+
 removeDefaultPermissions = remove_default_permissions
+
 
 def check_permissions(irc, uid, perms, also_show=[]):
     """
@@ -63,5 +69,7 @@ def check_permissions(irc, uid, perms, also_show=[]):
                 if any(irc.match_host(perm, p) for p in perms):
                     return True
     raise utils.NotAuthorizedError("You are missing one of the following permissions: %s" %
-                                   (', '.join(perms+also_show)))
+                                   (', '.join(perms + also_show)))
+
+
 checkPermissions = check_permissions

@@ -17,18 +17,20 @@ from . import conf
 from .log import log
 
 __all__ = ['KeyedDefaultdict', 'CopyWrapper', 'CaseInsensitiveFixedSet',
-          'CaseInsensitiveDict', 'IRCCaseInsensitiveDict',
-          'CaseInsensitiveSet', 'IRCCaseInsensitiveSet',
-          'CamelCaseToSnakeCase', 'DataStore', 'JSONDataStore',
-          'PickleDataStore']
+           'CaseInsensitiveDict', 'IRCCaseInsensitiveDict',
+           'CaseInsensitiveSet', 'IRCCaseInsensitiveSet',
+           'CamelCaseToSnakeCase', 'DataStore', 'JSONDataStore',
+           'PickleDataStore']
 
 
 _BLACKLISTED_COPY_TYPES = []
+
 
 class KeyedDefaultdict(collections.defaultdict):
     """
     Subclass of defaultdict allowing the key to be passed to the default factory.
     """
+
     def __missing__(self, key):
         if self.default_factory is None:
             # If there is no default factory, just let defaultdict handle it
@@ -36,6 +38,7 @@ class KeyedDefaultdict(collections.defaultdict):
         else:
             value = self[key] = self.default_factory(key)
             return value
+
 
 class CopyWrapper():
     """
@@ -49,11 +52,11 @@ class CopyWrapper():
     def __deepcopy__(self, memo):
         """Returns a deep copy of the channel object."""
         newobj = copy(self)
-        #log.debug('CopyWrapper: _BLACKLISTED_COPY_TYPES = %s', _BLACKLISTED_COPY_TYPES)
+        # log.debug('CopyWrapper: _BLACKLISTED_COPY_TYPES = %s', _BLACKLISTED_COPY_TYPES)
         for attr, val in self.__dict__.items():
             # We can't pickle IRCNetwork, so just return a reference of it.
             if not isinstance(val, tuple(_BLACKLISTED_COPY_TYPES)):
-                #log.debug('CopyWrapper: copying attr %r', attr)
+                # log.debug('CopyWrapper: copying attr %r', attr)
                 setattr(newobj, attr, deepcopy(val))
 
         memo[id(self)] = newobj
@@ -63,6 +66,7 @@ class CopyWrapper():
     def deepcopy(self):
         """Returns a deep copy of this object instance."""
         return deepcopy(self)
+
 
 class CaseInsensitiveFixedSet(collections.abc.Set, CopyWrapper):
     """
@@ -102,10 +106,12 @@ class CaseInsensitiveFixedSet(collections.abc.Set, CopyWrapper):
     def __copy__(self):
         return self.__class__(data=self._data.copy())
 
+
 class CaseInsensitiveDict(collections.abc.MutableMapping, CaseInsensitiveFixedSet):
     """
     A dictionary storing items case insensitively.
     """
+
     def __init__(self, *, data=None):
         if data is not None:
             self._data = data
@@ -123,10 +129,12 @@ class CaseInsensitiveDict(collections.abc.MutableMapping, CaseInsensitiveFixedSe
     def __delitem__(self, key):
         del self._data[self._keymangle(key)]
 
+
 class IRCCaseInsensitiveDict(CaseInsensitiveDict):
     """
     A dictionary storing items case insensitively, using IRC case mappings.
     """
+
     def __init__(self, irc, *, data=None):
         super().__init__(data=data)
         self._irc = irc
@@ -143,6 +151,7 @@ class IRCCaseInsensitiveDict(CaseInsensitiveDict):
 
     def __copy__(self):
         return self.__class__(self._irc, data=self._data.copy())
+
 
 class CaseInsensitiveSet(collections.abc.MutableSet, CaseInsensitiveFixedSet):
     """
@@ -155,10 +164,12 @@ class CaseInsensitiveSet(collections.abc.MutableSet, CaseInsensitiveFixedSet):
     def discard(self, key):
         self._data.discard(self._keymangle(key))
 
+
 class IRCCaseInsensitiveSet(CaseInsensitiveSet):
     """
     A set storing items case insensitively, using IRC case mappings.
     """
+
     def __init__(self, irc, *, data=None):
         super().__init__(data=data)
         self._irc = irc
@@ -175,6 +186,7 @@ class IRCCaseInsensitiveSet(CaseInsensitiveSet):
 
     def __copy__(self):
         return self.__class__(self._irc, data=self._data.copy())
+
 
 class CamelCaseToSnakeCase():
     """
@@ -203,11 +215,13 @@ class CamelCaseToSnakeCase():
         log.warning('%s.%s is deprecated, considering migrating to %s.%s!', classname, attr, classname, normalized_attr)
         return target
 
+
 class DataStore:
     """
     Generic database class. Plugins should use a subclass of this such as JSONDataStore or
     PickleDataStore.
     """
+
     def __init__(self, name, filename, save_frequency=None, default_db=None, data_dir=None):
         if data_dir is None:
             data_dir = conf.conf['pylink'].get('data_dir', '')
@@ -271,6 +285,7 @@ class DataStore:
 
         self.save()
 
+
 class JSONDataStore(DataStore):
     def load(self):
         """Loads the database given via JSON."""
@@ -291,6 +306,7 @@ class JSONDataStore(DataStore):
                 json.dump(self.store, f, indent=4)
 
                 os.rename(self.tmp_filename, self.filename)
+
 
 class PickleDataStore(DataStore):
     def load(self):

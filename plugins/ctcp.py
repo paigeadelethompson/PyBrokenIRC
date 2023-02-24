@@ -12,7 +12,7 @@ def handle_ctcp(irc, source, command, args):
     """
     text = args['text']
     if not (text.startswith('\x01') and text.endswith('\x01')):
-        return None # Pass through to other plugins
+        return None  # Pass through to other plugins
 
     target = args['target']
     if not irc.get_service_bot(target):
@@ -50,7 +50,9 @@ def handle_ctcp(irc, source, command, args):
                  irc.get_friendly_name(target))
         return False
 
+
 utils.add_hook(handle_ctcp, 'PRIVMSG', priority=200)
+
 
 def handle_ctcpversion(irc, source, ctcp, data):
     """
@@ -58,12 +60,13 @@ def handle_ctcpversion(irc, source, ctcp, data):
     """
     return irc.version()
 
+
 def handle_ctcpeaster(irc, source, ctcp, data):
     """
     Secret easter egg.
     """
 
-    responses = ["Legends say the cord monster was born only %s years ago..." % \
+    responses = ["Legends say the cord monster was born only %s years ago..." %
                  (datetime.datetime.now().year - 2014),
                  "Hiss%s" % ('...' * random.randint(1, 5)),
                  "His%s%s" % ('s' * random.randint(1, 4), '...' * random.randint(1, 5)),
@@ -76,10 +79,11 @@ def handle_ctcpeaster(irc, source, ctcp, data):
                  "Request timed out.",
                  "No actual pie here, sorry.",
                  "Hey, no loitering!",
-                 "Hey, can you keep a secret? \x031,1 %s" % " " * random.randint(1,20),
-                ]
+                 "Hey, can you keep a secret? \x031,1 %s" % " " * random.randint(1, 20),
+                 ]
 
     return random.choice(responses)
+
 
 # Map CTCP commands to functions generating an appropriate text response.
 SUPPORTED_COMMANDS = {'VERSION': handle_ctcpversion,

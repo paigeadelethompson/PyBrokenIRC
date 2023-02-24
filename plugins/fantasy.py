@@ -30,7 +30,7 @@ def handle_fantasy(irc, source, command, args):
             # 2) The global "pylink::respond_to_nick" option
             # 3) The (deprecated) global "bot::respondtonick" option.
             respondtonick = conf.conf.get(botname, {}).get('respond_to_nick',
-                conf.conf['pylink'].get("respond_to_nick", conf.conf['pylink'].get("respondtonick")))
+                                                           conf.conf['pylink'].get("respond_to_nick", conf.conf['pylink'].get("respondtonick")))
 
             log.debug('(%s) fantasy: checking bot %s', irc.name, botname)
             servuid = sbot.uids.get(irc.name)
@@ -44,7 +44,7 @@ def handle_fantasy(irc, source, command, args):
                 # If responding to nick is enabled, add variations of the current nick
                 # to the prefix list: "<nick>,", "<nick>:", and "@<nick>" (for Discord and other protocols)
                 nick = irc.to_lower(irc.users[servuid].nick)
-                nick_prefixes = [nick+',', nick+':', '@'+nick]
+                nick_prefixes = [nick + ',', nick + ':', '@' + nick]
                 if respondtonick:
                     prefixes += nick_prefixes
 
@@ -54,7 +54,7 @@ def handle_fantasy(irc, source, command, args):
 
                 lowered_text = irc.to_lower(orig_text)
                 for prefix in filter(None, prefixes):  # Cycle through the prefixes list we finished with.
-                     if lowered_text.startswith(prefix):
+                    if lowered_text.startswith(prefix):
 
                         # Cut off the length of the prefix from the text.
                         text = orig_text[len(prefix):]
@@ -69,5 +69,6 @@ def handle_fantasy(irc, source, command, args):
                         # Finally, call the bot command and loop to the next bot.
                         sbot.call_cmd(irc, source, text, called_in=channel)
                         continue
+
 
 utils.add_hook(handle_fantasy, 'PRIVMSG')

@@ -10,6 +10,7 @@ from pylinkirc.log import log
 
 REMOTE_IN_USE = threading.Event()
 
+
 @utils.add_cmd
 def disconnect(irc, source, args):
     """<network>
@@ -36,6 +37,7 @@ def disconnect(irc, source, args):
     control.remove_network(network)
     irc.reply("Done. If you want to reconnect this network, use the 'rehash' command.")
 
+
 @utils.add_cmd
 def autoconnect(irc, source, args):
     """<network> <seconds>
@@ -59,10 +61,13 @@ def autoconnect(irc, source, args):
     network.serverdata['autoconnect'] = seconds
     irc.reply("Done.")
 
+
 remote_parser = utils.IRCParser()
 remote_parser.add_argument('--service', type=str, default='pylink')
 remote_parser.add_argument('network')
 remote_parser.add_argument('command', nargs=utils.IRCParser.REMAINDER)
+
+
 @utils.add_cmd
 def remote(irc, source, args):
     """[--service <service name>] <network> <command>
@@ -130,7 +135,7 @@ def remote(irc, source, args):
 
         # Set the identification override to the caller's account.
         remoteirc.pseudoclient.account = irc.users[source].account
-    except:
+    except BaseException:
         REMOTE_IN_USE.clear()
         raise
 
@@ -165,10 +170,11 @@ def remote(irc, source, args):
             # Remove the identification override after we finish.
             try:
                 remoteirc.pseudoclient.account = ''
-            except:
+            except BaseException:
                 log.warning('(%s) networks.remote: failed to restore pseudoclient account for %s; '
                             'did the remote network disconnect while running this command?', irc.name, netname)
             REMOTE_IN_USE.clear()
+
 
 @utils.add_cmd
 def reloadproto(irc, source, args):

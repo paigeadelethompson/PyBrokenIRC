@@ -21,8 +21,10 @@ def remove_network(ircobj):
     ircobj.disconnect()
     del world.networkobjects[ircobj.name]
 
+
 def _print_remaining_threads():
     log.debug('shutdown(): Remaining threads: %s', ['%s/%s' % (t.name, t.ident) for t in threading.enumerate()])
+
 
 def _remove_pid():
     pidfile = "%s.pid" % conf.confname
@@ -36,6 +38,7 @@ def _remove_pid():
     else:
         log.debug('Not removing PID file %s as world._should_remove_pid is False.' % pidfile)
 
+
 def _kill_plugins(irc=None):
     if not world.plugins:
         # No plugins were loaded or we were in a pre-initialized state, ignore.
@@ -48,13 +51,15 @@ def _kill_plugins(irc=None):
             log.debug('coremods.control: Running die() on plugin %s due to shutdown.', name)
             try:
                 plugin.die(irc=irc)
-            except:  # But don't allow it to crash the server.
+            except BaseException:  # But don't allow it to crash the server.
                 log.exception('coremods.control: Error occurred in die() of plugin %s, skipping...', name)
+
 
 # We use atexit to register certain functions so that when PyLink cleans up after itself if it
 # shuts down because all networks have been disconnected.
 atexit.register(_remove_pid)
 atexit.register(_kill_plugins)
+
 
 def shutdown(irc=None):
     """Shuts down the Pylink daemon."""
@@ -85,13 +90,16 @@ def shutdown(irc=None):
 
     # Done.
 
+
 def _sigterm_handler(signo, stack_frame):
     """Handles SIGTERM and SIGINT gracefully by shutting down the PyLink daemon."""
     log.info("Shutting down on signal %s." % signo)
     shutdown()
 
+
 signal.signal(signal.SIGTERM, _sigterm_handler)
 signal.signal(signal.SIGINT, _sigterm_handler)
+
 
 def rehash():
     """Rehashes the PyLink daemon."""
@@ -146,10 +154,11 @@ def rehash():
                 # API note: 2.0.x style of starting network connections
                 world.networkobjects[network] = newirc = proto.Class(network)
                 newirc.connect()
-            except:
+            except BaseException:
                 log.exception('Failed to initialize network %r, skipping it...', network)
 
     log.info('Finished reloading PyLink configuration.')
+
 
 if os.name == 'posix':
     # Only register SIGHUP/SIGUSR1 on *nix.

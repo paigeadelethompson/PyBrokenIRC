@@ -17,6 +17,7 @@ __all__ = ['UnrealProtocol']
 
 SJOIN_PREFIXES = {'q': '*', 'a': '~', 'o': '@', 'h': '%', 'v': '+', 'b': '&', 'e': '"', 'I': "'"}
 
+
 class UnrealProtocol(TS6BaseProtocol):
     # I'm not sure what the real limit is, but the text posted at
     # https://github.com/jlu5/PyLink/issues/378 suggests 427 characters.
@@ -24,56 +25,56 @@ class UnrealProtocol(TS6BaseProtocol):
     # also help. (but why BUFSIZE-*80*?) -jlu5
     S2S_BUFSIZE = 427
     _KNOWN_CMODES = {'ban': 'b',
-              'banexception': 'e',
-              'blockcolor': 'c',
-              'censor': 'G',
-              'delayjoin': 'D',
-              'flood_unreal': 'f',
-              'invex': 'I',
-              'inviteonly': 'i',
-              'issecure': 'Z',
-              'key': 'k',
-              'limit': 'l',
-              'moderated': 'm',
-              'noctcp': 'C',
-              'noextmsg': 'n',
-              'noinvite': 'V',
-              'nokick': 'Q',
-              'noknock': 'K',
-              'nonick': 'N',
-              'nonotice': 'T',
-              'op': 'o',
-              'operonly': 'O',
-              'permanent': 'P',
-              'private': 'p',
-              'registered': 'r',
-              'regmoderated': 'M',
-              'regonly': 'R',
-              'secret': 's',
-              'sslonly': 'z',
-              'stripcolor': 'S',
-              'topiclock': 't',
-              'voice': 'v'}
+                     'banexception': 'e',
+                     'blockcolor': 'c',
+                     'censor': 'G',
+                     'delayjoin': 'D',
+                     'flood_unreal': 'f',
+                     'invex': 'I',
+                     'inviteonly': 'i',
+                     'issecure': 'Z',
+                     'key': 'k',
+                     'limit': 'l',
+                     'moderated': 'm',
+                     'noctcp': 'C',
+                     'noextmsg': 'n',
+                     'noinvite': 'V',
+                     'nokick': 'Q',
+                     'noknock': 'K',
+                     'nonick': 'N',
+                     'nonotice': 'T',
+                     'op': 'o',
+                     'operonly': 'O',
+                     'permanent': 'P',
+                     'private': 'p',
+                     'registered': 'r',
+                     'regmoderated': 'M',
+                     'regonly': 'R',
+                     'secret': 's',
+                     'sslonly': 'z',
+                     'stripcolor': 'S',
+                     'topiclock': 't',
+                     'voice': 'v'}
     _KNOWN_UMODES = {'bot': 'B',
-              'censor': 'G',
-              'cloak': 'x',
-              'deaf': 'd',
-              'filter': 'G',
-              'hidechans': 'p',
-              'hideidle': 'I',
-              'hideoper': 'H',
-              'invisible': 'i',
-              'noctcp': 'T',
-              'protected': 'q',
-              'regdeaf': 'R',
-              'registered': 'r',
-              'sslonlymsg': 'Z',
-              'servprotect': 'S',
-              'showwhois': 'W',
-              'snomask': 's',
-              'ssl': 'z',
-              'vhost': 't',
-              'wallops': 'w'}
+                     'censor': 'G',
+                     'cloak': 'x',
+                     'deaf': 'd',
+                     'filter': 'G',
+                     'hidechans': 'p',
+                     'hideidle': 'I',
+                     'hideoper': 'H',
+                     'invisible': 'i',
+                     'noctcp': 'T',
+                     'protected': 'q',
+                     'regdeaf': 'R',
+                     'registered': 'r',
+                     'sslonlymsg': 'Z',
+                     'servprotect': 'S',
+                     'showwhois': 'W',
+                     'snomask': 's',
+                     'ssl': 'z',
+                     'vhost': 't',
+                     'wallops': 'w'}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -99,10 +100,10 @@ class UnrealProtocol(TS6BaseProtocol):
         self.handle_svskill = self.handle_kill
         self.topic_burst = self.topic
 
-    ### OUTGOING COMMAND FUNCTIONS
+    # OUTGOING COMMAND FUNCTIONS
     def spawn_client(self, nick, ident='null', host='null', realhost=None, modes=set(),
-            server=None, ip='0.0.0.0', realname=None, ts=None, opertype='IRC Operator',
-            manipulatable=False):
+                     server=None, ip='0.0.0.0', realname=None, ts=None, opertype='IRC Operator',
+                     manipulatable=False):
         """
         Spawns a new client with the given options.
 
@@ -126,8 +127,8 @@ class UnrealProtocol(TS6BaseProtocol):
         modes |= {('+x', None), ('+t', None)}
 
         raw_modes = self.join_modes(modes)
-        u = self.users[uid] = User(self,  nick, ts, uid, server, ident=ident, host=host, realname=realname,
-            realhost=realhost, ip=ip, manipulatable=manipulatable, opertype=opertype)
+        u = self.users[uid] = User(self, nick, ts, uid, server, ident=ident, host=host, realname=realname,
+                                   realhost=realhost, ip=ip, manipulatable=manipulatable, opertype=opertype)
         self.apply_modes(uid, modes)
         self.servers[server].users.add(uid)
 
@@ -152,10 +153,10 @@ class UnrealProtocol(TS6BaseProtocol):
         # <- :001 UID jlu5 0 1441306929 jlu5 localhost 0018S7901 0 +iowx * midnight-1C620195 fwAAAQ== :realname
         self._send_with_prefix(server, "UID {nick} {hopcount} {ts} {ident} {realhost} {uid} 0 {modes} "
                                "{host} * {ip} :{realname}".format(ts=ts, host=host,
-                               nick=nick, ident=ident, uid=uid,
-                               modes=raw_modes, realname=realname,
-                               realhost=realhost, ip=encoded_ip,
-                               hopcount=self.servers[server].hopcount))
+                                                                  nick=nick, ident=ident, uid=uid,
+                                                                  modes=raw_modes, realname=realname,
+                                                                  realhost=realhost, ip=encoded_ip,
+                                                                  hopcount=self.servers[server].hopcount))
 
         return u
 
@@ -207,7 +208,7 @@ class UnrealProtocol(TS6BaseProtocol):
             if prefixchars:
                 changedmodes |= {('+%s' % prefix, user) for prefix in prefixes}
 
-            itemlist.append(prefixchars+user)
+            itemlist.append(prefixchars + user)
             uids.append(user)
 
             try:
@@ -227,7 +228,7 @@ class UnrealProtocol(TS6BaseProtocol):
 
                 sjoin_prefix = SJOIN_PREFIXES.get(modepair[0][-1])
                 if sjoin_prefix:
-                    itemlist.append(sjoin_prefix+modepair[1])
+                    itemlist.append(sjoin_prefix + modepair[1])
             else:
                 simplemodes.add(modepair)
 
@@ -336,7 +337,7 @@ class UnrealProtocol(TS6BaseProtocol):
 
         setter = self.get_hostmask(source) if source in self.users else self.get_friendly_name(source)
         currtime = int(time.time())
-        self._send_with_prefix(real_source, 'TKL + G %s %s %s %s %s :%s' % (user, host, setter, currtime+duration if duration != 0 else 0, currtime, reason))
+        self._send_with_prefix(real_source, 'TKL + G %s %s %s %s %s :%s' % (user, host, setter, currtime + duration if duration != 0 else 0, currtime, reason))
 
     def update_client(self, target, field, text):
         """Updates the ident, host, or realname of any connected client."""
@@ -365,21 +366,21 @@ class UnrealProtocol(TS6BaseProtocol):
 
                 # Send hook payloads for other plugins to listen to.
                 self.call_hooks([self.sid, 'CHGIDENT',
-                                   {'target': target, 'newident': text}])
+                                 {'target': target, 'newident': text}])
 
             elif field == 'HOST':
                 self.users[target].host = text
                 self._send_with_prefix(self.sid, 'CHGHOST %s %s' % (target, text))
 
                 self.call_hooks([self.sid, 'CHGHOST',
-                                   {'target': target, 'newhost': text}])
+                                 {'target': target, 'newhost': text}])
 
             elif field in ('REALNAME', 'GECOS'):
                 self.users[target].realname = text
                 self._send_with_prefix(self.sid, 'CHGNAME %s :%s' % (target, text))
 
                 self.call_hooks([self.sid, 'CHGNAME',
-                                   {'target': target, 'newgecos': text}])
+                                 {'target': target, 'newgecos': text}])
 
     def kill(self, source, target, reason):
         """Sends a kill from a PyLink client or server."""
@@ -401,7 +402,7 @@ class UnrealProtocol(TS6BaseProtocol):
         s = '[Knock] by %s (%s)' % (self.get_hostmask(numeric), text)
         self._send_with_prefix(sender, 'NOTICE @%s :%s' % (target, s))
 
-    ### HANDLERS
+    # HANDLERS
 
     def post_connect(self):
         """Initializes a connection to a server."""
@@ -640,7 +641,7 @@ class UnrealProtocol(TS6BaseProtocol):
                 # Call hooks manually, because one JOIN command in UnrealIRCd can
                 # have multiple channels...
                 self.call_hooks([numeric, command, {'channel': channel, 'users': [numeric], 'modes':
-                                                       c.modes, 'ts': c.ts}])
+                                                    c.modes, 'ts': c.ts}])
 
     def handle_sjoin(self, numeric, command, args):
         """Handles the UnrealIRCd SJOIN command."""
@@ -837,7 +838,7 @@ class UnrealProtocol(TS6BaseProtocol):
         if newhost != oldhost:
             # Only send a payload if the old and new hosts are different.
             self.call_hooks([uid, 'SETHOST',
-                               {'target': uid, 'newhost': newhost}])
+                             {'target': uid, 'newhost': newhost}])
 
     def handle_svsmode(self, numeric, command, args):
         """Handles SVSMODE, used by services for setting user modes on others."""
@@ -1034,5 +1035,6 @@ class UnrealProtocol(TS6BaseProtocol):
 
         if args[0] == 'alltime':
             self._send_with_prefix(self.sid, 'NOTICE %s :*** Server=%s time()=%d' % (source, self.hostname(), time.time()))
+
 
 Class = UnrealProtocol

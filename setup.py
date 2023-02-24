@@ -93,12 +93,12 @@ setup(
         '': ['example-conf.yml', 'VERSION', 'README.md'],
     },
 
-    package_dir = {'pylinkirc': '.'},
+    package_dir={'pylinkirc': '.'},
 
     # Executable scripts
     scripts=["pylink-mkpasswd"],
 
-    entry_points = {
+    entry_points={
         'console_scripts': ['pylink=pylinkirc.launcher:main'],
     }
 )

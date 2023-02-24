@@ -17,6 +17,7 @@ except ImportError:
 
 args = {}
 
+
 def _main():
     conf.load_conf(args.config)
 
@@ -156,7 +157,7 @@ def _main():
                 world.networkobjects[network] = irc = proto.Class(network)
                 log.debug('Connecting to network %r', network)
                 irc.connect()
-            except:
+            except BaseException:
                 log.exception('(%s) Failed to connect to network %r, skipping it...',
                               network, network)
                 continue
@@ -164,6 +165,7 @@ def _main():
     world.started.set()
     log.info("Loaded plugins: %s", ', '.join(sorted(world.plugins.keys())))
     selectdriver.start()
+
 
 def main():
     import argparse

@@ -79,7 +79,9 @@ def spawn_service(irc, source, command, args):
     # Enumerate & join network defined channels.
     sbot.join(irc, sbot.get_persistent_channels(irc))
 
+
 utils.add_hook(spawn_service, 'PYLINK_NEW_SERVICE')
+
 
 def handle_disconnect(irc, source, command, args):
     """Handles network disconnections."""
@@ -90,7 +92,9 @@ def handle_disconnect(irc, source, command, args):
         except KeyError:
             continue
 
+
 utils.add_hook(handle_disconnect, 'PYLINK_DISCONNECT')
+
 
 def handle_endburst(irc, source, command, args):
     """Handles network bursts."""
@@ -101,7 +105,9 @@ def handle_endburst(irc, source, command, args):
         for name, sbot in world.services.items():
             spawn_service(irc, source, command, {'name': name})
 
+
 utils.add_hook(handle_endburst, 'ENDBURST', priority=500)
+
 
 def handle_kill(irc, source, command, args):
     """Handle KILLs to PyLink service bots, respawning them as needed."""
@@ -121,7 +127,9 @@ def handle_kill(irc, source, command, args):
                  userdata.nick if userdata else irc.users[target].nick, irc.get_hostmask(source), args.get('text'))
         spawn_service(irc, source, command, {'name': servicename})
 
+
 utils.add_hook(handle_kill, 'KILL')
+
 
 def handle_join(irc, source, command, args):
     """Monitors channel joins for dynamic service bot joining."""
@@ -136,8 +144,11 @@ def handle_join(irc, source, command, args):
                 sbot.uids.get(irc.name) not in users:
             log.debug('(%s) Dynamically joining service %r to channel %r.', irc.name, servicename, channel)
             sbot.join(irc, channel)
+
+
 utils.add_hook(handle_join, 'JOIN')
 utils.add_hook(handle_join, 'PYLINK_SERVICE_JOIN')
+
 
 def _services_dynamic_part(irc, channel):
     """Dynamically removes service bots from empty channels."""
@@ -156,11 +167,15 @@ def _services_dynamic_part(irc, channel):
                 irc.part(u, channel)
         return True
 
+
 def handle_part(irc, source, command, args):
     """Monitors channel joins for dynamic service bot joining."""
     for channel in args['channels']:
         _services_dynamic_part(irc, channel)
+
+
 utils.add_hook(handle_part, 'PART')
+
 
 def handle_kick(irc, source, command, args):
     """Handle KICKs to the PyLink service bots, rejoining channels as needed."""
@@ -171,7 +186,10 @@ def handle_kick(irc, source, command, args):
         sbot = irc.get_service_bot(kicked)
         if sbot and channel in sbot.get_persistent_channels(irc):
             sbot.join(irc, channel)
+
+
 utils.add_hook(handle_kick, 'KICK')
+
 
 def handle_commands(irc, source, command, args):
     """Handle commands sent to the PyLink service bots (PRIVMSG)."""
@@ -181,6 +199,7 @@ def handle_commands(irc, source, command, args):
     sbot = irc.get_service_bot(target)
     if sbot:
         sbot.call_cmd(irc, source, text)
+
 
 utils.add_hook(handle_commands, 'PRIVMSG')
 

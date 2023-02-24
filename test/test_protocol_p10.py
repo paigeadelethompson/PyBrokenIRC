@@ -6,6 +6,7 @@ import unittest
 
 from pylinkirc.protocols import p10
 
+
 class P10UIDGeneratorTest(unittest.TestCase):
     def setUp(self):
         self.uidgen = p10.P10UIDGenerator('HI')
@@ -45,7 +46,7 @@ class P10UIDGeneratorTest(unittest.TestCase):
             "HIAA3",
             "HIAA4",
         ]
-        self.uidgen.counter = 26*2-1
+        self.uidgen.counter = 26 * 2 - 1
         actual = [self.uidgen.next_uid() for i in range(6)]
         self.assertEqual(expected, actual)
 
@@ -60,7 +61,7 @@ class P10UIDGeneratorTest(unittest.TestCase):
             "HIABC",
             "HIABD",
         ]
-        self.uidgen.counter = 26*2+10-2
+        self.uidgen.counter = 26 * 2 + 10 - 2
         actual = [self.uidgen.next_uid() for i in range(8)]
         self.assertEqual(expected, actual)
 
@@ -73,14 +74,15 @@ class P10UIDGeneratorTest(unittest.TestCase):
             "HIFAB",
             "HIFAC",
         ]
-        self.uidgen.counter = 5*64**2 - 3
+        self.uidgen.counter = 5 * 64**2 - 3
         actual = [self.uidgen.next_uid() for i in range(6)]
         self.assertEqual(expected, actual)
 
     def test_overflow(self):
-        self.uidgen.counter = 64**3-1
+        self.uidgen.counter = 64**3 - 1
         self.assertTrue(self.uidgen.next_uid())
         self.assertRaises(RuntimeError, self.uidgen.next_uid)
+
 
 if __name__ == '__main__':
     unittest.main()

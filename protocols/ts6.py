@@ -16,11 +16,12 @@ __all__ = ['TS6Protocol']
 class TS6Protocol(TS6BaseProtocol):
 
     SUPPORTED_IRCDS = ('charybdis', 'elemental', 'chatircd', 'ratbox')
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self._ircd = self.serverdata.get('ircd', 'elemental' if self.serverdata.get('use_elemental_modes')
-                                                             else 'charybdis')
+                                         else 'charybdis')
         self._ircd = self._ircd.lower()
         if self._ircd not in self.SUPPORTED_IRCDS:
             log.warning("(%s) Unsupported IRCd %r; falling back to 'charybdis' instead", self.name, self._ircd)
@@ -40,11 +41,11 @@ class TS6Protocol(TS6BaseProtocol):
 
         self.required_caps = {'TB', 'ENCAP', 'QS', 'CHW'}
 
-    ### OUTGOING COMMANDS
+    # OUTGOING COMMANDS
 
     def spawn_client(self, nick, ident='null', host='null', realhost=None, modes=set(),
-            server=None, ip='0.0.0.0', realname=None, ts=None, opertype='IRC Operator',
-            manipulatable=False):
+                     server=None, ip='0.0.0.0', realname=None, ts=None, opertype='IRC Operator',
+                     manipulatable=False):
         """
         Spawns a new client with the given options.
 
@@ -75,17 +76,17 @@ class TS6Protocol(TS6BaseProtocol):
             # charybdis-style EUID
             self._send_with_prefix(server, "EUID {nick} {hopcount} {ts} {modes} {ident} {host} {ip} {uid} "
                                            "{realhost} * :{realname}".format(ts=ts, host=host,
-                                           nick=nick, ident=ident, uid=uid,
-                                           modes=raw_modes, ip=ip, realname=realname,
-                                           realhost=realhost or host,
-                                           hopcount=self.servers[server].hopcount))
+                                                                             nick=nick, ident=ident, uid=uid,
+                                                                             modes=raw_modes, ip=ip, realname=realname,
+                                                                             realhost=realhost or host,
+                                                                             hopcount=self.servers[server].hopcount))
         else:
             # Basic ratbox UID
             self._send_with_prefix(server, "UID {nick} {hopcount} {ts} {modes} {ident} {host} {ip} {uid} "
                                            ":{realname}".format(ts=ts, host=host,
-                                           nick=nick, ident=ident, uid=uid,
-                                           modes=raw_modes, ip=ip, realname=realname,
-                                           hopcount=self.servers[server].hopcount))
+                                                                nick=nick, ident=ident, uid=uid,
+                                                                modes=raw_modes, ip=ip, realname=realname,
+                                                                hopcount=self.servers[server].hopcount))
 
             if realhost:
                 # If real host is specified, send it using ENCAP REALHOST
@@ -188,7 +189,7 @@ class TS6Protocol(TS6BaseProtocol):
                     if pr:
                         prefixchars += pr
                         changedmodes.add(('+%s' % prefix, user))
-                namelist.append(prefixchars+user)
+                namelist.append(prefixchars + user)
                 uids.append(user)
                 try:
                     self.users[user].channels.add(channel)
@@ -197,8 +198,8 @@ class TS6Protocol(TS6BaseProtocol):
             users = users[12:]
             namelist = ' '.join(namelist)
             self._send_with_prefix(server, "SJOIN {ts} {channel} {modes} :{users}".format(
-                    ts=ts, users=namelist, channel=channel,
-                    modes=self.join_modes(regularmodes)))
+                ts=ts, users=namelist, channel=channel,
+                modes=self.join_modes(regularmodes)))
             self._channels[channel].users.update(uids)
 
         # Now, burst bans.
@@ -209,7 +210,7 @@ class TS6Protocol(TS6BaseProtocol):
             if bans:
                 log.debug('(%s) sjoin: bursting mode %s with bans %s, ts:%s', self.name, bmode, bans, ts)
                 msgprefix = ':{sid} BMASK {ts} {channel} {bmode} :'.format(sid=server, ts=ts,
-                                                                          channel=channel, bmode=bmode)
+                                                                           channel=channel, bmode=bmode)
                 # Actually, we cut off at 17 arguments/line, since the prefix and command name don't count.
                 for msg in utils.wrap_arguments(msgprefix, bans, self.S2S_BUFSIZE, max_args_per_line=17):
                     self.send(msg)
@@ -284,7 +285,7 @@ class TS6Protocol(TS6BaseProtocol):
         # parameters: target server mask, duration, user mask, host mask, reason
         assert not (user == host == '*'), "Refusing to set ridiculous ban on *@*"
 
-        if not source in self.users:
+        if source not in self.users:
             log.debug('(%s) Forcing KLINE sender to %s as TS6 does not allow KLINEs from servers', self.name, self.pseudoclient.uid)
             source = self.pseudoclient.uid
 
@@ -300,12 +301,12 @@ class TS6Protocol(TS6BaseProtocol):
                 # If the target isn't one of our clients, send hook payload
                 # for other plugins to listen to.
                 self.call_hooks([self.sid, 'CHGHOST',
-                                   {'target': target, 'newhost': text}])
+                                 {'target': target, 'newhost': text}])
         else:
             raise NotImplementedError("Changing field %r of a client is "
                                       "unsupported by this IRCd." % field)
 
-    ### Core / handlers
+    # Core / handlers
 
     def post_connect(self):
         """Initializes a connection to a server."""
@@ -766,5 +767,6 @@ class TS6Protocol(TS6BaseProtocol):
         """Handles login propagation on burst."""
         self.users[uid].services_account = args[0]
         return {'text': args[0]}
+
 
 Class = TS6Protocol

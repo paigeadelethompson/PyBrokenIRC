@@ -10,17 +10,20 @@ from pylinkirc.log import log
 # Having a hard limit here is sensible because otherwise it can flood the client or server off.
 CHECKBAN_MAX_RESULTS = 200
 
+
 def _checkban_positiveint(value):
     value = int(value)
     if value <= 0 or value > CHECKBAN_MAX_RESULTS:
-         raise argparse.ArgumentTypeError("%s is not a positive integer between 1 and %s." % (value, CHECKBAN_MAX_RESULTS))
+        raise argparse.ArgumentTypeError("%s is not a positive integer between 1 and %s." % (value, CHECKBAN_MAX_RESULTS))
     return value
+
 
 checkban_parser = utils.IRCParser()
 checkban_parser.add_argument('banmask')
 checkban_parser.add_argument('target', nargs='?', default='')
 checkban_parser.add_argument('--channel', default='')
 checkban_parser.add_argument('--maxresults', type=_checkban_positiveint, default=50)
+
 
 def checkban(irc, source, args, use_regex=False):
     """<banmask> [<target nick or hostmask>] [--channel #channel] [--maxresults <num>]
@@ -48,7 +51,7 @@ def checkban(irc, source, args, use_regex=False):
             if results < args.maxresults:
                 userobj = irc.users[uid]
                 s = "\x02%s\x02 (%s@%s) [%s] {\x02%s\x02}" % (userobj.nick, userobj.ident,
-                    userobj.host, userobj.realname, irc.get_friendly_name(irc.get_server(uid)))
+                                                              userobj.host, userobj.realname, irc.get_friendly_name(irc.get_server(uid)))
 
                 # Always reply in private to prevent information leaks.
                 irc.reply(s, private=True)
@@ -66,7 +69,10 @@ def checkban(irc, source, args, use_regex=False):
             irc.reply('Yes, \x02%s\x02 matches \x02%s\x02.' % (args.target, args.banmask))
         else:
             irc.reply('No, \x02%s\x02 does not match \x02%s\x02.' % (args.target, args.banmask))
+
+
 utils.add_cmd(checkban, aliases=('cban', 'trace'))
+
 
 def checkbanre(irc, source, args):
     """<regular expression> [<target nick or hostmask>] [--channel #channel] [--maxresults <num>]
@@ -84,6 +90,7 @@ def checkbanre(irc, source, args):
     permissions.check_permissions(irc, source, ['opercmds.checkban.re'])
     return checkban(irc, source, args, use_regex=True)
 
+
 utils.add_cmd(checkbanre, aliases=('crban',))
 
 massban_parser = utils.IRCParser()
@@ -94,6 +101,7 @@ massban_parser.add_argument('reason', nargs='*', default=["User banned"])
 massban_parser.add_argument('--quiet', '-q', action='store_true')
 massban_parser.add_argument('--force', '-f', action='store_true')
 massban_parser.add_argument('--include-opers', '-o', action='store_true')
+
 
 def massban(irc, source, args, use_regex=False):
     """<channel> <banmask / exttarget> [<kick reason>] [--quiet/-q] [--force/-f] [--include-opers/-o]
@@ -144,7 +152,7 @@ def massban(irc, source, args, use_regex=False):
         try:
             irc.call_hooks([irc.pseudoclient.uid, 'OPERCMDS_MASSBAN',
                             {'target': args.channel, 'modes': bans, 'parse_as': 'MODE'}])
-        except:
+        except BaseException:
             log.exception('(%s) Failed to send process massban hook; some bans may have not '
                           'been sent to plugins / relay networks!', irc.name)
 
@@ -156,7 +164,7 @@ def massban(irc, source, args, use_regex=False):
                 irc.call_hooks([irc.pseudoclient.uid, 'OPERCMDS_MASSKICK',
                                 {'channel': args.channel, 'target': uid, 'text': reason, 'parse_as': 'KICK'}])
 
-            except:
+            except BaseException:
                 log.exception('(%s) Failed to send process massban hook; some kicks may have not '
                               'been sent to plugins / relay networks!', irc.name)
 
@@ -165,7 +173,10 @@ def massban(irc, source, args, use_regex=False):
         irc.reply('Banned %s users on %r.' % (results, args.channel))
         log.info('(%s) Ran massban%s for %s on %s (%s user(s) removed)', irc.name, 're' if use_regex else '',
                  irc.get_hostmask(source), args.channel, results)
+
+
 utils.add_cmd(massban, aliases=('mban',))
+
 
 def massbanre(irc, source, args):
     """<channel> <regular expression> [<kick reason>] [--quiet/-q] [--include-opers/-o]
@@ -184,6 +195,7 @@ def massbanre(irc, source, args):
     permissions.check_permissions(irc, source, ['opercmds.massban.re'])
     return massban(irc, source, args, use_regex=True)
 
+
 utils.add_cmd(massbanre, aliases=('rban',))
 
 masskill_parser = utils.IRCParser()
@@ -193,6 +205,7 @@ masskill_parser.add_argument('reason', nargs='*', default=["User banned"], type=
 masskill_parser.add_argument('--akill', '-ak', action='store_true')
 masskill_parser.add_argument('--force-kb', '-f', action='store_true')
 masskill_parser.add_argument('--include-opers', '-o', action='store_true')
+
 
 def masskill(irc, source, args, use_regex=False):
     """<banmask / exttarget> [<kill/ban reason>] [--akill/ak] [--force-kb/-f] [--include-opers/-o]
@@ -250,7 +263,7 @@ def masskill(irc, source, args, use_regex=False):
                                         {'target': channel, 'modes': bans, 'parse_as': 'MODE'}])
                         irc.call_hooks([irc.pseudoclient.uid, 'OPERCMDS_MASSKILL_KICK',
                                         {'channel': channel, 'target': uid, 'text': reason, 'parse_as': 'KICK'}])
-                    except:
+                    except BaseException:
                         log.exception('(%s) Failed to send process massban hook; some kickbans may have not '
                                       'been sent to plugins / relay networks!', irc.name)
 
@@ -270,7 +283,7 @@ def masskill(irc, source, args, use_regex=False):
                 try:
                     irc.call_hooks([irc.pseudoclient.uid, 'OPERCMDS_MASSKILL',
                                     {'target': uid, 'parse_as': 'KILL', 'userdata': userobj, 'text': reason}])
-                except:
+                except BaseException:
                     log.exception('(%s) Failed to send process massban hook; some kickbans may have not '
                                   'been sent to plugins / relay networks!', irc.name)
             killed += 1
@@ -280,7 +293,10 @@ def masskill(irc, source, args, use_regex=False):
         log.info('(%s) Ran masskill%s for %s (%s/%s user(s) removed)', irc.name, 're' if use_regex else '',
                  irc.get_hostmask(source), killed, results)
         irc.reply('Masskilled %s/%s users.' % (killed, results))
+
+
 utils.add_cmd(masskill, aliases=('mkill',))
+
 
 def masskillre(irc, source, args):
     """<regular expression> [<kill/ban reason>] [--akill/ak] [--force-kb/-f] [--include-opers/-o]
@@ -304,7 +320,9 @@ def masskillre(irc, source, args):
     permissions.check_permissions(irc, source, ['opercmds.masskill.re'])
     return masskill(irc, source, args, use_regex=True)
 
+
 utils.add_cmd(masskillre, aliases=('rkill',))
+
 
 @utils.add_cmd
 def jupe(irc, source, args):
@@ -333,13 +351,14 @@ def jupe(irc, source, args):
 
     irc.reply("Done.")
 
+
 def _try_find_target(irc, nick):
     """
     Tries to find the target UID for the given nick, raising LookupError if it doesn't exist or is ambiguous.
     """
     try:
         int_u = int(nick)
-    except:
+    except BaseException:
         int_u = None
 
     if int_u and int_u in irc.users:
@@ -355,6 +374,7 @@ def _try_find_target(irc, nick):
         raise LookupError("Multiple users with the nick %r found: please select the right UID: %s" % (nick, str(potential_targets)))
     else:
         return potential_targets[0]
+
 
 @utils.add_cmd
 def kick(irc, source, args):
@@ -381,6 +401,7 @@ def kick(irc, source, args):
     irc.reply("Done.")
     irc.call_hooks([sender, 'OPERCMDS_KICK', {'channel': channel, 'target': targetu,
                                               'text': reason, 'parse_as': 'KICK'}])
+
 
 @utils.add_cmd
 def kill(irc, source, args):
@@ -413,6 +434,7 @@ def kill(irc, source, args):
     irc.reply("Done.")
     irc.call_hooks([source, 'OPERCMDS_KILL', {'target': targetu, 'text': reason,
                                               'userdata': userdata, 'parse_as': 'KILL'}])
+
 
 @utils.add_cmd
 def mode(irc, source, args):
@@ -453,6 +475,7 @@ def mode(irc, source, args):
 
     irc.reply("Done.")
 
+
 @utils.add_cmd
 def topic(irc, source, args):
     """<channel> <topic>
@@ -477,12 +500,14 @@ def topic(irc, source, args):
                    {'channel': channel, 'text': topic, 'setter': source,
                     'parse_as': 'TOPIC'}])
 
+
 @utils.add_cmd
 def chghost(irc, source, args):
     """<user> <new host>
 
     Changes the visible host of the target user."""
     _chgfield(irc, source, args, 'host')
+
 
 @utils.add_cmd
 def chgident(irc, source, args):
@@ -491,12 +516,14 @@ def chgident(irc, source, args):
     Changes the ident of the target user."""
     _chgfield(irc, source, args, 'ident')
 
+
 @utils.add_cmd
 def chgname(irc, source, args):
     """<user> <new name>
 
     Changes the GECOS (realname) of the target user."""
     _chgfield(irc, source, args, 'name', 'GECOS')
+
 
 def _chgfield(irc, source, args, human_field, internal_field=None):
     """Helper function for chghost/chgident/chgname."""

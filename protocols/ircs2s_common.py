@@ -11,6 +11,7 @@ from pylinkirc.log import log
 
 __all__ = ['UIDGenerator', 'IRCCommonProtocol', 'IRCS2SProtocol']
 
+
 class UIDGenerator():
     """
     Generate UIDs for IRC S2S.
@@ -19,7 +20,7 @@ class UIDGenerator():
     def __init__(self, uidchars, length, sid):
         self.uidchars = uidchars  # corpus of characters to choose from
         self.length = length  # desired length of uid part, padded with uidchars[0]
-        self.sid = str(sid)  #  server id (prefixed to every result)
+        self.sid = str(sid)  # server id (prefixed to every result)
         self.counter = 0
 
     def next_uid(self):
@@ -37,6 +38,7 @@ class UIDGenerator():
         self.counter += 1
         uid = uid.rjust(self.length, self.uidchars[0])
         return self.sid + uid
+
 
 class IRCCommonProtocol(IRCNetwork):
 
@@ -57,13 +59,13 @@ class IRCCommonProtocol(IRCNetwork):
         for k in self.conf_keys:
             log.debug('(%s) Checking presence of conf key %r', self.name, k)
             conf.validate(k in self.serverdata,
-                     "Missing option %r in server block for network %s."
-                     % (k, self.name))
+                          "Missing option %r in server block for network %s."
+                          % (k, self.name))
 
         port = self.serverdata['port']
         conf.validate(isinstance(port, int) and 0 < port < 65535,
-                 "Invalid port %r for network %s"
-                 % (port, self.name))
+                      "Invalid port %r for network %s"
+                      % (port, self.name))
 
     @staticmethod
     def parse_args(args):
@@ -263,6 +265,7 @@ class IRCCommonProtocol(IRCNetwork):
         """Sends a RFC1459-style raw command from the given sender."""
         self.send(':%s %s' % (self._expandPUID(source), msg), **kwargs)
 
+
 class IRCS2SProtocol(IRCCommonProtocol):
     COMMAND_TOKENS = {}
 
@@ -333,7 +336,7 @@ class IRCS2SProtocol(IRCCommonProtocol):
             log.debug("(%s) Rewriting incoming ENCAP to command %s (args: %s)", self.name, command, args)
 
         try:
-            func = getattr(self, 'handle_'+command.lower())
+            func = getattr(self, 'handle_' + command.lower())
         except AttributeError:  # Unhandled command
             pass
         else:

@@ -56,11 +56,11 @@ class InspIRCdProtocol(TS6BaseProtocol):
         # by bursting users.
         self._endburst_delay = 0
 
-    ### Outgoing commands
+    # Outgoing commands
 
     def spawn_client(self, nick, ident='null', host='null', realhost=None, modes=set(),
-            server=None, ip='0.0.0.0', realname=None, ts=None, opertype='IRC Operator',
-            manipulatable=False):
+                     server=None, ip='0.0.0.0', realname=None, ts=None, opertype='IRC Operator',
+                     manipulatable=False):
         """
         Spawns a new client with the given options.
 
@@ -87,9 +87,9 @@ class InspIRCdProtocol(TS6BaseProtocol):
 
         self._send_with_prefix(server, "UID {uid} {ts} {nick} {realhost} {host} {ident} {ip}"
                                " {ts} {modes} + :{realname}".format(ts=ts, host=host,
-                               nick=nick, ident=ident, uid=uid,
-                               modes=raw_modes, ip=ip, realname=realname,
-                               realhost=realhost))
+                                                                    nick=nick, ident=ident, uid=uid,
+                                                                    modes=raw_modes, ip=ip, realname=realname,
+                                                                    realhost=realhost))
         if ('o', None) in modes or ('+o', None) in modes:
             self._oper_up(uid, opertype)
         return u
@@ -108,8 +108,8 @@ class InspIRCdProtocol(TS6BaseProtocol):
         # Strip out list-modes, they shouldn't be ever sent in FJOIN.
         modes = [m for m in self._channels[channel].modes if m[0] not in self.cmodes['*A']]
         self._send_with_prefix(server, "FJOIN {channel} {ts} {modes} :,{uid}".format(
-                ts=self._channels[channel].ts, uid=client, channel=channel,
-                modes=self.join_modes(modes)))
+            ts=self._channels[channel].ts, uid=client, channel=channel,
+            modes=self.join_modes(modes)))
         self._channels[channel].users.add(client)
         self.users[client].channels.add(channel)
 
@@ -167,8 +167,8 @@ class InspIRCdProtocol(TS6BaseProtocol):
 
         namelist = ' '.join(namelist)
         self._send_with_prefix(server, "FJOIN {channel} {ts} {modes} :{users}".format(
-                ts=ts, users=namelist, channel=channel,
-                modes=self.join_modes(modes)))
+            ts=ts, users=namelist, channel=channel,
+            modes=self.join_modes(modes)))
         self._channels[channel].users.update(uids)
 
         if banmodes:
@@ -314,7 +314,7 @@ class InspIRCdProtocol(TS6BaseProtocol):
 
                 # Send hook payloads for other plugins to listen to.
                 self.call_hooks([self.sid, 'CHGIDENT',
-                                   {'target': target, 'newident': text}])
+                                 {'target': target, 'newident': text}])
             elif field == 'HOST':
                 if 'm_chghost.so' not in self._modsupport:
                     raise NotImplementedError('Cannot change hosts as m_chghost.so is not loaded')
@@ -323,7 +323,7 @@ class InspIRCdProtocol(TS6BaseProtocol):
                 self._send_with_prefix(self.sid, 'CHGHOST %s %s' % (target, text))
 
                 self.call_hooks([self.sid, 'CHGHOST',
-                                   {'target': target, 'newhost': text}])
+                                 {'target': target, 'newhost': text}])
 
             elif field in ('REALNAME', 'GECOS'):
                 if 'm_chgname.so' not in self._modsupport:
@@ -333,7 +333,8 @@ class InspIRCdProtocol(TS6BaseProtocol):
                 self._send_with_prefix(self.sid, 'CHGNAME %s :%s' % (target, text))
 
                 self.call_hooks([self.sid, 'CHGNAME',
-                                   {'target': target, 'newgecos': text}])
+                                 {'target': target, 'newgecos': text}])
+
     def oper_notice(self, source, text):
         """
         Send a message to all opers.
@@ -450,7 +451,7 @@ class InspIRCdProtocol(TS6BaseProtocol):
         self._send_with_prefix(source, 'ADDLINE G %s@%s %s %s %s :%s' % (user, host, self.get_friendly_name(source)[:64],
                                                                          int(time.time()), duration, reason))
 
-    ### Core / command handlers
+    # Core / command handlers
 
     def _post_disconnect(self):
         super()._post_disconnect()
@@ -795,8 +796,8 @@ class InspIRCdProtocol(TS6BaseProtocol):
             source = args[3]
 
             if args[1] != self.serverdata['recvpass']:
-                 # Check if recvpass is correct
-                 raise ProtocolError('recvpass from uplink server %s does not match configuration!' % servername)
+                # Check if recvpass is correct
+                raise ProtocolError('recvpass from uplink server %s does not match configuration!' % servername)
 
             sdesc = args[-1]
             self.servers[source] = Server(self, None, servername, desc=sdesc)
@@ -1033,5 +1034,6 @@ class InspIRCdProtocol(TS6BaseProtocol):
         # XXX: We override notice() here because that abstraction doesn't allow messages from servers.
         timestring = '%s (%s)' % (time.strftime('%Y-%m-%d %H:%M:%S'), int(time.time()))
         self._send_with_prefix(self.sid, 'NOTICE %s :System time is %s on %s' % (source, timestring, self.hostname()))
+
 
 Class = InspIRCdProtocol

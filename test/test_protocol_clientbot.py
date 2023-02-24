@@ -6,6 +6,7 @@ from pylinkirc.classes import User
 
 import protocol_test_fixture as ptf
 
+
 class ClientbotProtocolTest(ptf.BaseProtocolTest):
     proto_class = clientbot.ClientbotWrapperProtocol
 
@@ -15,7 +16,7 @@ class ClientbotProtocolTest(ptf.BaseProtocolTest):
 
     def test_get_UID(self):
         u_internal = self._make_user('you', uid='100')
-        check = lambda inp, expected: self.assertEqual(self.p._get_UID(inp), expected)
+        def check(inp, expected): return self.assertEqual(self.p._get_UID(inp), expected)
 
         # External clients are returned by the matcher
         with unittest.mock.patch.object(self.proto_class, 'is_internal_client', return_value=False) as m:
@@ -31,8 +32,8 @@ class ClientbotProtocolTest(ptf.BaseProtocolTest):
             check('100', '100')    # already a UID
             check('Test', 'Test')  # non-existent
 
-
     # In the future we will have protocol specific test cases here
+
 
 if __name__ == '__main__':
     unittest.main()

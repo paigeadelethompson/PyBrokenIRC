@@ -11,9 +11,10 @@ from pylinkirc import conf, world
 from pylinkirc.log import log
 from pylinkirc.classes import User, Server, Channel
 
+
 class DummySocket():
     def __init__(self):
-        #self.recv_messages = collections.deque()
+        # self.recv_messages = collections.deque()
         self.sent_messages = collections.deque()
 
     @staticmethod
@@ -35,6 +36,7 @@ class DummySocket():
     def send(self, data):
         print('->', data)
         self.sent_messages.append(data)
+
 
 class BaseProtocolTest(unittest.TestCase):
     proto_class = None
@@ -63,7 +65,7 @@ class BaseProtocolTest(unittest.TestCase):
         self.p.users[uid] = userobj
         return userobj
 
-    ### STATEKEEPING FUNCTIONS
+    # STATEKEEPING FUNCTIONS
 
     def test_nick_to_uid(self):
         self.assertEqual(self.p.nick_to_uid('TestUser'), None)
@@ -112,8 +114,8 @@ class BaseProtocolTest(unittest.TestCase):
             self.assertEqual(self.p.get_service_bot('MyServ@2'), 'myserv instance')
 
     def test_to_lower(self):
-        check = lambda inp, expected: self.assertEqual(self.p.to_lower(inp), expected)
-        check_unchanged = lambda inp: self.assertEqual(self.p.to_lower(inp), inp)
+        def check(inp, expected): return self.assertEqual(self.p.to_lower(inp), expected)
+        def check_unchanged(inp): return self.assertEqual(self.p.to_lower(inp), inp)
 
         check('BLAH!', 'blah!')
         check('BLAH!', 'blah!')  # since we memoize
@@ -128,8 +130,8 @@ class BaseProtocolTest(unittest.TestCase):
             check('{Test Case}', '{test case}')
 
     def test_is_nick(self):
-        assertT = lambda inp: self.assertTrue(self.p.is_nick(inp))
-        assertF = lambda inp: self.assertFalse(self.p.is_nick(inp))
+        def assertT(inp): return self.assertTrue(self.p.is_nick(inp))
+        def assertF(inp): return self.assertFalse(self.p.is_nick(inp))
 
         assertT('test')
         assertT('PyLink')
@@ -156,8 +158,8 @@ class BaseProtocolTest(unittest.TestCase):
         assertF('-test')
         assertF('#lounge')
         assertF('\\bar/bender\\')
-        assertF('jlu5/ovd') # Technically not valid, but some IRCds don't care ;)
-        assertF('100AAAAAC') # TS6 UID
+        assertF('jlu5/ovd')  # Technically not valid, but some IRCds don't care ;)
+        assertF('100AAAAAC')  # TS6 UID
 
         self.assertFalse(self.p.is_nick('longnicklongnicklongnicklongnicklongnicklongnick', nicklen=20))
         self.assertTrue(self.p.is_nick('ninechars', nicklen=9))
@@ -167,8 +169,8 @@ class BaseProtocolTest(unittest.TestCase):
         self.assertFalse(self.p.is_nick('ninecharsplus', nicklen=12))
 
     def test_is_channel(self):
-        assertT = lambda inp: self.assertTrue(self.p.is_channel(inp))
-        assertF = lambda inp: self.assertFalse(self.p.is_channel(inp))
+        def assertT(inp): return self.assertTrue(self.p.is_channel(inp))
+        def assertF(inp): return self.assertFalse(self.p.is_channel(inp))
 
         assertT('#test')
         assertT('#')
@@ -186,8 +188,8 @@ class BaseProtocolTest(unittest.TestCase):
         self.assertFalse(self.p.is_server_name('bacon'))
 
     def test_is_hostmask(self):
-        assertT = lambda inp: self.assertTrue(self.p.is_hostmask(inp))
-        assertF = lambda inp: self.assertFalse(self.p.is_hostmask(inp))
+        def assertT(inp): return self.assertTrue(self.p.is_hostmask(inp))
+        def assertF(inp): return self.assertFalse(self.p.is_hostmask(inp))
 
         assertT('nick!user@host')
         assertT('abc123!~ident@ip1-2-3-4.example.net')
@@ -200,12 +202,12 @@ class BaseProtocolTest(unittest.TestCase):
         assertF('#channel')
         assertF('test.host')
         assertF('nick ! user @ host')
-        assertF('alpha!beta@example.net#otherchan') # Janus workaround
+        assertF('alpha!beta@example.net#otherchan')  # Janus workaround
 
     def test_get_SID(self):
         self.p.servers['serv1'] = Server(self.p, None, 'myserv.local', internal=True)
 
-        check = lambda inp, expected: self.assertEqual(self.p._get_SID(inp), expected)
+        def check(inp, expected): return self.assertEqual(self.p._get_SID(inp), expected)
         check('myserv.local', 'serv1')
         check('MYSERV.local', 'serv1')
         check('serv1', 'serv1')
@@ -213,7 +215,7 @@ class BaseProtocolTest(unittest.TestCase):
 
     def test_get_UID(self):
         u = self._make_user('you', uid='100')
-        check = lambda inp, expected: self.assertEqual(self.p._get_UID(inp), expected)
+        def check(inp, expected): return self.assertEqual(self.p._get_UID(inp), expected)
 
         check('you', '100')    # nick to UID
         check('YOu', '100')
@@ -235,7 +237,7 @@ class BaseProtocolTest(unittest.TestCase):
 
     # TODO: _squit wrapper
 
-    ### MISC UTILS
+    # MISC UTILS
     def test_get_service_option(self):
         f = self.p.get_service_option
         self.assertEqual(f('myserv', 'myopt'), None)  # No value anywhere
@@ -284,7 +286,7 @@ class BaseProtocolTest(unittest.TestCase):
 
         # This is just mildly relevant test data, it's not actually used anywhere.
         globalopt = {'o': '@', 'v': '+', 'a': '!', 'h': '%'}
-        localopt  = {'a': '&', 'q': '~'}
+        localopt = {'a': '&', 'q': '~'}
         # Define global option
         with patch.dict(conf.conf, {'chanman': {'prefixes': globalopt, 'empty': {}}}):
             self.assertEqual(f('chanman', 'prefixes', dict), globalopt)  # Global value only
@@ -301,7 +303,7 @@ class BaseProtocolTest(unittest.TestCase):
         with patch.dict(self.p.serverdata, {'chanman_prefixes': localopt}):
             self.assertEqual(f('chanman', 'prefixes', dict), localopt)  # Read local option
 
-    ### MODE HANDLING
+    # MODE HANDLING
     def test_parse_modes_channel_rfc(self):
         # These are basic tests that only use RFC 1459 defined modes.
         # IRCds supporting more complex modes can define new test cases if needed.
@@ -900,7 +902,7 @@ class BaseProtocolTest(unittest.TestCase):
 
     def test_join_modes(self):
         # join_modes operates independently of state; the input just has to be valid modepairs
-        check = lambda inp, expected, sort=False: self.assertEqual(self.p.join_modes(inp, sort=sort), expected)
+        def check(inp, expected, sort=False): return self.assertEqual(self.p.join_modes(inp, sort=sort), expected)
 
         check([], '+')  # base case
 

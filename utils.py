@@ -33,26 +33,31 @@ PLUGIN_PREFIX = plugins.__name__ + '.'
 PROTOCOL_PREFIX = protocols.__name__ + '.'
 NORMALIZEWHITESPACE_RE = re.compile(r'\s+')
 
+
 class NotAuthorizedError(Exception):
     """
     Exception raised by the PyLink permissions system when a user fails access requirements.
     """
     pass
 
+
 class InvalidArgumentsError(TypeError):
     """
     Exception raised (by IRCParser and potentially others) when a bot command is given invalid arguments.
     """
+
 
 class ProtocolError(RuntimeError):
     """
     Exception raised when a network protocol violation is encountered in some way.
     """
 
+
 def add_cmd(func, name=None, **kwargs):
     """Binds an IRC command function to the given command name."""
     world.services['pylink'].add_cmd(func, name=name, **kwargs)
     return func
+
 
 def add_hook(func, command, priority=100):
     """
@@ -65,11 +70,15 @@ def add_hook(func, command, priority=100):
     world.hooks[command].sort(key=lambda pair: pair[0], reverse=True)
     return func
 
+
 def expand_path(path):
     """
     Returns a path expanded with environment variables and home folders (~) expanded, in that order."""
     return os.path.expanduser(os.path.expandvars(path))
+
+
 expandpath = expand_path  # Consistency with os.path
+
 
 def _reset_module_dirs():
     """
@@ -80,21 +89,30 @@ def _reset_module_dirs():
     log.debug('_reset_module_dirs: new pylinkirc.plugins.__path__: %s', plugins.__path__)
     protocols.__path__ = [protocols.__path__[0]] + [expandpath(path) for path in conf.conf['pylink'].get('protocol_dirs', [])]
     log.debug('_reset_module_dirs: new pylinkirc.protocols.__path__: %s', protocols.__path__)
+
+
 resetModuleDirs = _reset_module_dirs
+
 
 def _load_plugin(name):
     """
     Imports and returns the requested plugin.
     """
     return importlib.import_module(PLUGIN_PREFIX + name)
+
+
 loadPlugin = _load_plugin
+
 
 def _get_protocol_module(name):
     """
     Imports and returns the protocol module requested.
     """
     return importlib.import_module(PROTOCOL_PREFIX + name)
+
+
 getProtocolModule = _get_protocol_module
+
 
 def split_hostmask(mask):
     """
@@ -105,7 +123,10 @@ def split_hostmask(mask):
     if not all({nick, ident, host}):
         raise ValueError("Invalid user@host %r" % mask)
     return [nick, ident, host]
+
+
 splitHostmask = split_hostmask
+
 
 class ServiceBot():
     """
@@ -280,7 +301,7 @@ class ServiceBot():
             # XXX: we really need abstraction for this kind of config fetching...
             show_unknown_cmds = irc.serverdata.get('%s_show_unknown_commands' % self.name,
                                                    conf.conf.get(self.name, {}).get('show_unknown_commands',
-                                                   conf.conf['pylink'].get('show_unknown_commands', True)))
+                                                                                    conf.conf['pylink'].get('show_unknown_commands', True)))
 
             if cmd and show_unknown_cmds and not cmd.startswith('\x01'):
                 # Ignore empty commands and invalid command errors from CTCPs.
@@ -358,7 +379,7 @@ class ServiceBot():
         if fails >= 1:
             altnicks = irc.serverdata.get("%s_altnicks" % self.name) or sbconf.get('altnicks') or []
             try:
-                nick = altnicks[fails-1]
+                nick = altnicks[fails - 1]
             except IndexError:
                 nick += ('_' * fails)
 
@@ -439,7 +460,7 @@ class ServiceBot():
                           '%r from namespace %r', irc.name, self.name,
                           chanlist, dch_namespace)
                 channels |= chanlist
-        channels |= set(irc.serverdata.get(self.name+'_channels', []))
+        channels |= set(irc.serverdata.get(self.name + '_channels', []))
         channels |= set(irc.serverdata.get('channels', []))
         return channels
 
@@ -462,7 +483,6 @@ class ServiceBot():
                 if try_part:
                     self.part(irc, chanlist, reason=part_reason)
 
-
         else:  # when irc is None
             del self.dynamic_channels[namespace]
 
@@ -472,7 +492,6 @@ class ServiceBot():
                 if try_part and netname in world.networkobjects:
                     self.part(world.networkobjects[netname], chanlist,
                               reason=part_reason)
-
 
     def _show_command_help(self, irc, command, private=False, shortform=False):
         """
@@ -523,13 +542,13 @@ class ServiceBot():
                         for linenum, line in enumerate(lines[1:], 1):
                             stripped_line = line.strip()
                             log.debug("_show_command_help: Current line (%s): %r", linenum, stripped_line)
-                            log.debug("_show_command_help: Last line (%s-1=%s): %r", linenum, linenum-1, lines[linenum-1].strip())
+                            log.debug("_show_command_help: Last line (%s-1=%s): %r", linenum, linenum - 1, lines[linenum - 1].strip())
 
                             if stripped_line:
                                 # If this line has content, join it with the previous one.
                                 next_line += line.rstrip()
                                 next_line += ' '
-                            elif linenum > 0 and not lines[linenum-1].strip():
+                            elif linenum > 0 and not lines[linenum - 1].strip():
                                 # The line before us was empty, so treat this one as a legitimate
                                 # newline/break.
                                 log.debug("_show_command_help: Adding an extra break...")
@@ -623,6 +642,7 @@ class ServiceBot():
                     self._show_command_help(irc, cmd, private=True, shortform=True)
             self.reply(irc, 'End of command listing.', private=True)
 
+
 def register_service(name, *args, **kwargs):
     """Registers a service bot."""
     name = name.lower()
@@ -631,13 +651,16 @@ def register_service(name, *args, **kwargs):
 
     # Allow disabling service spawning either globally or by service.
     elif name != 'pylink' and not (conf.conf.get(name, {}).get('spawn_service',
-            conf.conf['pylink'].get('spawn_services', True))):
+                                                               conf.conf['pylink'].get('spawn_services', True))):
         return world.services['pylink']
 
     world.services[name] = sbot = ServiceBot(name, *args, **kwargs)
     sbot.spawn()
     return sbot
+
+
 registerService = register_service
+
 
 def unregister_service(name):
     """Unregisters an existing service bot."""
@@ -658,7 +681,10 @@ def unregister_service(name):
         ircobj.quit(uid, "Service unloaded.")
 
     del world.services[name]
+
+
 unregisterService = unregister_service
+
 
 def wrap_arguments(prefix, args, length, separator=' ', max_args_per_line=0):
     """
@@ -675,7 +701,7 @@ def wrap_arguments(prefix, args, length, separator=' ', max_args_per_line=0):
     args = list(args)
 
     while args:
-        assert len(prefix+args[0]) <= length, \
+        assert len(prefix + args[0]) <= length, \
             "wrap_arguments: Argument %r is too long for the given length %s" % (args[0], length)
 
         # Add arguments until our buffer is up to the length limit.
@@ -691,7 +717,10 @@ def wrap_arguments(prefix, args, length, separator=' ', max_args_per_line=0):
         strings.append(buf)
 
     return strings
+
+
 wrapArguments = wrap_arguments
+
 
 class IRCParser(argparse.ArgumentParser):
     """
@@ -710,9 +739,11 @@ class IRCParser(argparse.ArgumentParser):
     def exit(self, *args):
         return
 
+
 # From http://modern.ircdocs.horse/formatting.html
 _strip_color_regex = re.compile(r'\x03(\d{1,2}(,\d{1,2})?)?')
 _irc_formatting_chars = "\x02\x1D\x1F\x1E\x11\x16\x0F\x03"
+
 
 def strip_irc_formatting(text):
     """Returns text with IRC formatting (colors, underlines, bold, italics, reverse) removed."""
@@ -721,7 +752,10 @@ def strip_irc_formatting(text):
         text = text.replace(char, '')
     return text
 
+
 _subrange_re = re.compile(r'(?P<start>(\d+))-(?P<end>(\d+))')
+
+
 def remove_range(rangestr, mylist):
     """
     Removes a range string of (one-indexed) items from the list.
@@ -752,25 +786,26 @@ def remove_range(rangestr, mylist):
                                  rangestr)
 
             # For our purposes, make sure the start and end are within the list
-            mylist[start-1], mylist[end-1]
+            mylist[start - 1], mylist[end - 1]
 
             # Replace the entire range with None's
-            log.debug('utils.remove_range: removing items from %s to %s: %s', start, end, mylist[start-1:end])
-            mylist[start-1:end] = [None] * (end-(start-1))
+            log.debug('utils.remove_range: removing items from %s to %s: %s', start, end, mylist[start - 1:end])
+            mylist[start - 1:end] = [None] * (end - (start - 1))
 
         elif subrange in string.digits:
             index = int(subrange)
             if index == 0:
                 raise ValueError("Got index 0 in range string %r, this function is one-indexed" %
                                  rangestr)
-            log.debug('utils.remove_range: removing item %s: %s', index, mylist[index-1])
-            mylist[index-1] = None
+            log.debug('utils.remove_range: removing item %s: %s', index, mylist[index - 1])
+            mylist[index - 1] = None
 
         else:
             raise ValueError("Got invalid subrange %r in range string %r" %
                              (subrange, rangestr))
 
     return list(filter(lambda x: x is not None, mylist))
+
 
 def get_hostname_type(address):
     """
@@ -789,7 +824,10 @@ def get_hostname_type(address):
         else:
             raise ValueError("Got unknown value %r from ipaddress.ip_address()" % address)
 
+
 _duration_re = re.compile(r"^((?P<week>\d+)w)?((?P<day>\d+)d)?((?P<hour>\d+)h)?((?P<minute>\d+)m)?((?P<second>\d+)s)?$")
+
+
 def parse_duration(text):
     """
     Takes in a duration string and returns the equivalent amount of seconds.
@@ -814,13 +852,13 @@ def parse_duration(text):
     matched = 0
 
     if match.group('week'):
-        result += int(match.group('week'))   *  7 * 24 * 60 * 60
+        result += int(match.group('week')) * 7 * 24 * 60 * 60
         matched += 1
     if match.group('day'):
-        result += int(match.group('day'))    * 24 * 60 * 60
+        result += int(match.group('day')) * 24 * 60 * 60
         matched += 1
     if match.group('hour'):
-        result += int(match.group('hour'))   * 60 * 60
+        result += int(match.group('hour')) * 60 * 60
         matched += 1
     if match.group('minute'):
         result += int(match.group('minute')) * 60
@@ -833,6 +871,7 @@ def parse_duration(text):
         raise ValueError("Failed to parse duration string %r" % text)
 
     return result
+
 
 @functools.lru_cache(maxsize=1024)
 def _glob2re(glob):
@@ -850,6 +889,7 @@ def _glob2re(glob):
     patt.append('$')
     return ''.join(patt)
 
+
 def match_text(glob, text, filterfunc=str.lower):
     """
     Returns whether glob matches text. If filterfunc is specified, run filterfunc on glob and text
@@ -861,6 +901,7 @@ def match_text(glob, text, filterfunc=str.lower):
 
     return re.match(_glob2re(glob), text)
 
+
 def merge_iterables(A, B):
     """
     Merges the values in two iterables. A and B must be of the same type, and one of the following:
@@ -869,7 +910,7 @@ def merge_iterables(A, B):
     - set:  items are combined as A | B
     - dict: items are combined as {**A, **B}
     """
-    if type(A) != type(B):
+    if not isinstance(A, type(B)):
         raise ValueError("inputs must be the same type")
 
     if isinstance(A, list):

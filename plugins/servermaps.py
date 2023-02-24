@@ -8,17 +8,21 @@ from pylinkirc.log import log
 
 DEFAULT_PERMISSIONS = {"$ircop": ['servermaps.localmap']}
 
+
 def main(irc=None):
     """Servermaps plugin main function, called on plugin load."""
     # Register our permissions.
     permissions.add_default_permissions(DEFAULT_PERMISSIONS)
 
+
 def die(irc=None):
     """Servermaps plugin die function, called on plugin unload."""
     permissions.remove_default_permissions(DEFAULT_PERMISSIONS)
 
+
 def _percent(num, total):
-    return '%.1f' % (num/total*100)
+    return '%.1f' % (num / total * 100)
+
 
 def _map(irc, source, args, show_relay=True):
     """[<network>]
@@ -57,7 +61,7 @@ def _map(irc, source, args, show_relay=True):
 
     log.debug('(%s) servermaps.map servers fetched for %s: %s', irc.name, netname, servers)
 
-    reply = lambda text: irc.reply(text, private=True)
+    def reply(text): return irc.reply(text, private=True)
 
     def showall(ircobj, sid, hops=0, is_relay_server=False):
         log.debug('servermaps: got showall() for SID %s on network %s', sid, ircobj.name)
@@ -84,10 +88,10 @@ def _map(irc, source, args, show_relay=True):
             if is_relay_server:
                 # Skip showing user data for relay servers.
                 reply("%s\x02%s\x02[%s] (via PyLink Relay)" %
-                      ('    '*hops, serverlist[leaf].name, leaf))
+                      ('    ' * hops, serverlist[leaf].name, leaf))
             else:
                 reply("%s\x02%s\x02[%s]: %s user(s) (%s%%) {hopcount: %d}" %
-                      ('    '*hops, serverlist[leaf].name, leaf,
+                      ('    ' * hops, serverlist[leaf].name, leaf,
                        serverusers, _percent(serverusers, usercount), serverlist[leaf].hopcount))
             showall(ircobj, leaf, hops, is_relay_server=is_relay_server)
 
@@ -101,7 +105,7 @@ def _map(irc, source, args, show_relay=True):
                 else:
                     # For Clientbot links, show the server we're actually connected to.
                     reply("%s\x02%s\x02 (actual server name)" %
-                          ('    '*(hops+1), remoteirc.uplink))
+                          ('    ' * (hops + 1), remoteirc.uplink))
 
         else:
             # Afterwards, decrement the hopcount.
@@ -112,9 +116,11 @@ def _map(irc, source, args, show_relay=True):
     showall(ircobj, firstserver)
     serverlist = irc.servers
     reply('Total %s users on %s local servers - average of %1.f per server' % (usercount, len(serverlist),
-          usercount/len(serverlist)))
+          usercount / len(serverlist)))
+
 
 utils.add_cmd(_map, 'map')
+
 
 @utils.add_cmd
 def localmap(irc, source, args):

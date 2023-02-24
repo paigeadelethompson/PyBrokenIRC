@@ -21,12 +21,14 @@ fileloggers = []
 _format = '%(asctime)s [%(levelname)s] %(message)s'
 logformatter = logging.Formatter(_format)
 
+
 def _get_console_log_level():
     """
     Returns the configured console log level.
     """
     logconf = conf.conf['logging']
     return logconf.get('console', logconf.get('stdout')) or 'INFO'
+
 
 # Set up logging to STDERR
 world.console_handler = logging.StreamHandler()
@@ -41,6 +43,7 @@ log.addHandler(world.console_handler)
 # can other loggers filter out events on their own, instead of having everything dropped by
 # the root logger. https://stackoverflow.com/questions/16624695
 log.setLevel(1)
+
 
 def _make_file_logger(filename, level=None):
     """
@@ -80,6 +83,7 @@ def _make_file_logger(filename, level=None):
 
     return filelogger
 
+
 def _stop_file_loggers():
     """
     De-initializes all file loggers.
@@ -89,6 +93,7 @@ def _stop_file_loggers():
         handler.close()
         log.removeHandler(handler)
         fileloggers.remove(handler)
+
 
 # Set up file logging now, creating a file logger for each block.
 files = conf.conf['logging'].get('files')
@@ -107,10 +112,12 @@ while world._log_queue:
     log.log(level, text)
 log.debug("log: Emptied _log_queue")
 
+
 class PyLinkChannelLogger(logging.Handler):
     """
     Log handler to log to channels in PyLink.
     """
+
     def __init__(self, irc, channel, level=None):
         super(PyLinkChannelLogger, self).__init__()
         self.irc = irc
@@ -156,7 +163,7 @@ class PyLinkChannelLogger(logging.Handler):
             for line in msg.splitlines():
                 try:
                     self.irc.msg(self.channel, line)
-                except:
+                except BaseException:
                     return
                 else:
                     self.called = False

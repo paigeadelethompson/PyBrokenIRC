@@ -11,6 +11,8 @@ gameclient = utils.register_service("Games", default_nick="Games", manipulatable
 reply = gameclient.reply  # TODO find a better syntax for ServiceBot.reply()
 error = gameclient.error  # TODO find a better syntax for ServiceBot.error()
 # commands
+
+
 def dice(irc, source, args):
     """<num>d<sides>
 
@@ -39,35 +41,41 @@ def dice(irc, source, args):
     s = 'You rolled %s: %s (total: %s)' % (args[0], ' '.join([str(x) for x in results]), sum(results))
     reply(irc, s)
 
+
 gameclient.add_cmd(dice, aliases=('d'), featured=True)
 
 eightball_responses = ["It is certain.",
-             "It is decidedly so.",
-             "Without a doubt.",
-             "Yes, definitely.",
-             "You may rely on it.",
-             "As I see it, yes.",
-             "Most likely.",
-             "Outlook good.",
-             "Yes.",
-             "Signs point to yes.",
-             "Reply hazy, try again.",
-             "Ask again later.",
-             "Better not tell you now.",
-             "Cannot predict now.",
-             "Concentrate and ask again.",
-             "Don't count on it.",
-             "My reply is no.",
-             "My sources say no.",
-             "Outlook not so good.",
-             "Very doubtful."]
+                       "It is decidedly so.",
+                       "Without a doubt.",
+                       "Yes, definitely.",
+                       "You may rely on it.",
+                       "As I see it, yes.",
+                       "Most likely.",
+                       "Outlook good.",
+                       "Yes.",
+                       "Signs point to yes.",
+                       "Reply hazy, try again.",
+                       "Ask again later.",
+                       "Better not tell you now.",
+                       "Cannot predict now.",
+                       "Concentrate and ask again.",
+                       "Don't count on it.",
+                       "My reply is no.",
+                       "My sources say no.",
+                       "Outlook not so good.",
+                       "Very doubtful."]
+
+
 def eightball(irc, source, args):
     """[<question>]
 
     Asks the Magic 8-ball a question.
     """
     reply(irc, random.choice(eightball_responses))
+
+
 gameclient.add_cmd(eightball, featured=True, aliases=('8ball', '8b'))
+
 
 def die(irc=None):
     utils.unregister_service('games')

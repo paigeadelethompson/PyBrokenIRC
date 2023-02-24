@@ -32,12 +32,13 @@ __all__ = ['ChannelState', 'User', 'UserMapping', 'PyLinkNetworkCore',
 QUEUE_FULL = queue.Full
 
 
-### Internal classes (users, servers, channels)
+# Internal classes (users, servers, channels)
 
 class ChannelState(structures.IRCCaseInsensitiveDict):
     """
     A dictionary storing channels case insensitively. Channel objects are initialized on access.
     """
+
     def __getitem__(self, key):
         key = self._keymangle(key)
 
@@ -48,8 +49,10 @@ class ChannelState(structures.IRCCaseInsensitiveDict):
 
         return self._data[key]
 
+
 class TSObject():
     """Base class for classes containing a type-normalized timestamp."""
+
     def __init__(self, *args, **kwargs):
         self._ts = int(time.time())
 
@@ -65,8 +68,10 @@ class TSObject():
             value = int(value)
         self._ts = value
 
+
 class User(TSObject):
     """PyLink IRC user class."""
+
     def __init__(self, irc, nick, ts, uid, server, ident='null', host='null',
                  realname='PyLink dummy client', realhost='null',
                  ip='0.0.0.0', manipulatable=False, opertype='IRC Operator'):
@@ -164,14 +169,19 @@ class User(TSObject):
 
     def __repr__(self):
         return 'User(%s/%s)' % (self.uid, self.nick)
+
+
 IrcUser = User
 
 # Bidirectional dict based off https://stackoverflow.com/a/21894086
+
+
 class UserMapping(collections.abc.MutableMapping, structures.CopyWrapper):
     """
     A mapping storing User objects by UID, as well as UIDs by nick via
     the 'bynick' attribute
     """
+
     def __init__(self, irc, data=None):
         if data is not None:
             assert isinstance(data, dict)
@@ -218,6 +228,7 @@ class UserMapping(collections.abc.MutableMapping, structures.CopyWrapper):
 
     def __copy__(self):
         return self.__class__(self._irc, data=self._data.copy())
+
 
 class PyLinkNetworkCore(structures.CamelCaseToSnakeCase):
     """Base IRC object for PyLink."""
@@ -370,7 +381,7 @@ class PyLinkNetworkCore(structures.CamelCaseToSnakeCase):
     def __repr__(self):
         return "<%s object for network %r>" % (self.__class__.__name__, self.name)
 
-    ## Stubs
+    # Stubs
     def validate_server_conf(self):
         return
 
@@ -380,7 +391,7 @@ class PyLinkNetworkCore(structures.CamelCaseToSnakeCase):
     def disconnect(self):
         raise NotImplementedError
 
-    ## General utility functions
+    # General utility functions
     def call_hooks(self, hook_args):
         """Calls a hook function with the given hook args."""
         numeric, command, parsed_args = hook_args
@@ -466,7 +477,7 @@ class PyLinkNetworkCore(structures.CamelCaseToSnakeCase):
             _msg(text)
 
     def _reply(self, text, notice=None, source=None, private=None, force_privmsg_in_private=False,
-            loopback=True, wrap=True):
+               loopback=True, wrap=True):
         """
         Core of the reply() function - replies to the last caller in the right context
         (channel or PM).
@@ -503,7 +514,7 @@ class PyLinkNetworkCore(structures.CamelCaseToSnakeCase):
         # This is a stub to alias error to reply
         self.reply("Error: %s" % text, **kwargs)
 
-    ## Configuration-based lookup functions.
+    # Configuration-based lookup functions.
     def version(self):
         """
         Returns a detailed version string including the PyLink daemon version,
@@ -572,7 +583,7 @@ class PyLinkNetworkCore(structures.CamelCaseToSnakeCase):
         """
         return capab.lower() in self.protocol_caps
 
-    ## Shared helper functions
+    # Shared helper functions
     def _pre_connect(self):
         """
         Implements triggers called before a network connects.
@@ -677,7 +688,7 @@ class PyLinkNetworkCore(structures.CamelCaseToSnakeCase):
             log.debug('(%s) Removing client %s from user + server state', self.name, numeric)
             return userobj
 
-    ## State checking functions
+    # State checking functions
     def nick_to_uid(self, nick, multi=False, filterfunc=None):
         """Looks up the UID of a user with the given nick, or return None if no such nick exists.
 
@@ -747,7 +758,9 @@ class PyLinkNetworkCore(structures.CamelCaseToSnakeCase):
                         "exist (%s)!", self.name, uid, userobj.nick, sname)
         return world.services.get(sname)
 
+
 structures._BLACKLISTED_COPY_TYPES.append(PyLinkNetworkCore)
+
 
 class PyLinkNetworkCoreWithUtils(PyLinkNetworkCore):
 
@@ -774,6 +787,7 @@ class PyLinkNetworkCoreWithUtils(PyLinkNetworkCore):
         return text.encode().lower().decode()
 
     _NICK_REGEX = r'^[A-Za-z\|\\_\[\]\{\}\^\`][A-Z0-9a-z\-\|\\_\[\]\{\}\^\`]*$'
+
     @classmethod
     def is_nick(cls, s, nicklen=None):
         """
@@ -796,18 +810,19 @@ class PyLinkNetworkCoreWithUtils(PyLinkNetworkCore):
         """
         return str(obj).startswith('#')
 
-
     # Modified from https://stackoverflow.com/a/106223 (RFC 1123):
     # - Allow hostnames that end in '.'
     # - Require at least one '.' in the hostname
     _HOSTNAME_RE = re.compile(r'^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)+'
                               r'([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])*$')
+
     @classmethod
     def is_server_name(cls, text):
         """Returns whether the string given is a valid server name."""
         return bool(cls._HOSTNAME_RE.match(text))
 
     _HOSTMASK_RE = re.compile(r'^\S+!\S+@\S+$')
+
     @classmethod
     def is_hostmask(cls, text):
         """
@@ -1100,7 +1115,7 @@ class PyLinkNetworkCoreWithUtils(PyLinkNetworkCore):
                     # any old modepairs using the same letter. Otherwise, we'll get duplicates when,
                     # for example, someone sets mode "+l 30" on a channel already set "+l 25".
                     self._log_debug_modes('(%s) Old modes for mode %r exist in %s, removing them: %s',
-                              self.name, real_mode, modelist, str(existing))
+                                          self.name, real_mode, modelist, str(existing))
                     while existing:
                         oldvalue = existing.pop()
                         modelist.discard((real_mode[0], oldvalue))
@@ -1256,7 +1271,7 @@ class PyLinkNetworkCoreWithUtils(PyLinkNetworkCore):
                 continue
             elif mpair in newmodes:
                 # Check the same for regular modes that previously didn't exist
-                self._log_debug_modes("(%s) reverse_modes: skipping duplicate reverse mode %s", self.name,  mpair)
+                self._log_debug_modes("(%s) reverse_modes: skipping duplicate reverse mode %s", self.name, mpair)
                 continue
             newmodes.append(mpair)
 
@@ -1610,7 +1625,7 @@ class PyLinkNetworkCoreWithUtils(PyLinkNetworkCore):
         if ban_type in self.cmodes:
             return ('+%s' % self.cmodes[ban_type], banhost)
         elif ban_type in self.extbans_acting:  # Handle extbans, which are generally "+b prefix:banmask"
-            return ('+%s' % self.cmodes['ban'], self.extbans_acting[ban_type]+banhost)
+            return ('+%s' % self.cmodes['ban'], self.extbans_acting[ban_type] + banhost)
         else:
             raise ValueError("ban_type %r is not available on IRCd %r" % (ban_type, self.protoname))
 
@@ -1713,9 +1728,11 @@ class PyLinkNetworkCoreWithUtils(PyLinkNetworkCore):
         # This is protocol specific, so stub it here in the base class.
         raise NotImplementedError
 
+
 # When this many pings in a row are missed, the ping timer loop will force a disconnect on the
 # next cycle. Effectively the ping timeout is: pingfreq * (KEEPALIVE_MAX_MISSED + 1)
 KEEPALIVE_MAX_MISSED = 2
+
 
 class IRCNetwork(PyLinkNetworkCoreWithUtils):
     S2S_BUFSIZE = 510
@@ -1786,8 +1803,8 @@ class IRCNetwork(PyLinkNetworkCoreWithUtils):
             # Otherwise, only check cert hostname if the target is a hostname OR we have
             # ssl-should-verify defined
             context.check_hostname = self.serverdata.get('ssl_validate_hostname',
-                self.has_cap("ssl-should-verify") or
-                utils.get_hostname_type(self.serverdata['ip']) == 0)
+                                                         self.has_cap("ssl-should-verify") or
+                                                         utils.get_hostname_type(self.serverdata['ip']) == 0)
 
         return context
 
@@ -1805,13 +1822,13 @@ class IRCNetwork(PyLinkNetworkCoreWithUtils):
         # Cert and key files are optional, load them if specified.
         if certfile and keyfile:
             try:
-                cafile != None and context.load_verify_locations(cafile)
+                cafile is not None and context.load_verify_locations(cafile)
                 context.load_cert_chain(certfile, keyfile)
             except OSError:
-                 log.exception('(%s) Caught OSError trying to initialize the SSL connection; '
-                               'are "ssl_certfile", "ssl_keyfile", and "ssl_cafile" set correctly?',
-                               self.name)
-                 raise
+                log.exception('(%s) Caught OSError trying to initialize the SSL connection; '
+                              'are "ssl_certfile", "ssl_keyfile", and "ssl_cafile" set correctly?',
+                              self.name)
+                raise
 
         self._socket = context.wrap_socket(self._socket, server_hostname=self.serverdata.get('ip'))
 
@@ -1922,7 +1939,7 @@ class IRCNetwork(PyLinkNetworkCoreWithUtils):
                 self._verify_ssl()
 
             self._queue_thread = threading.Thread(name="Queue thread for %s" % self.name,
-                                                 target=self._process_queue, daemon=True)
+                                                  target=self._process_queue, daemon=True)
             self._queue_thread.start()
 
             self.sid = self.serverdata.get("sid")
@@ -1943,7 +1960,7 @@ class IRCNetwork(PyLinkNetworkCoreWithUtils):
             self.autoconnect_active_multiplier = 1  # Reset any extra autoconnect delays
 
         # _run_irc() or the protocol module it called raised an exception, meaning we've disconnected
-        except:
+        except BaseException:
             self._log_connection_error('(%s) Disconnected from IRC:', self.name, exc_info=True)
             if not self._aborted.is_set():
                 self.disconnect()
@@ -1981,7 +1998,7 @@ class IRCNetwork(PyLinkNetworkCoreWithUtils):
             try:
                 log.debug('(%s) disconnect: shutting down read half of socket %s', self.name, self._socket)
                 self._socket.shutdown(socket.SHUT_RD)
-            except:
+            except BaseException:
                 log.debug('(%s) Error on socket shutdown:', self.name, exc_info=True)
 
             log.debug('(%s) disconnect: waiting for write half of socket %s to shutdown', self.name, self._socket)
@@ -2111,7 +2128,7 @@ class IRCNetwork(PyLinkNetworkCoreWithUtils):
                 if self._aborted.wait(throttle_time):
                     break
                 continue
-            except:
+            except BaseException:
                 log.exception("(%s) Failed to send message %r; aborting!", self.name, data)
                 self.disconnect()
                 return
@@ -2193,7 +2210,9 @@ class IRCNetwork(PyLinkNetworkCoreWithUtils):
 
         return textwrap.wrap(text, width=maxlen)
 
+
 Irc = IRCNetwork
+
 
 class Server():
     """PyLink IRC server class.
@@ -2230,7 +2249,9 @@ class Server():
     def __repr__(self):
         return 'Server(%s)' % self.name
 
+
 IrcServer = Server
+
 
 class Channel(TSObject, structures.CamelCaseToSnakeCase, structures.CopyWrapper):
     """PyLink IRC channel class."""
@@ -2335,7 +2356,10 @@ class Channel(TSObject, structures.CamelCaseToSnakeCase, structures.CopyWrapper)
                 result.append(mode)
 
         return sorted(result, key=self.sort_prefixes)
+
+
 IrcChannel = Channel
+
 
 class PUIDGenerator():
     """

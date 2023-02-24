@@ -24,39 +24,42 @@ __all__ = ['ConfigurationError', 'conf', 'confname', 'validate', 'load_conf',
 class ConfigurationError(RuntimeError):
     """Error when config conditions aren't met."""
 
+
 conf = {'bot':
-                {
-                    'nick': 'PyLink',
+        {
+            'nick': 'PyLink',
                     'user': 'pylink',
                     'realname': 'PyLink Service Client',
                     'serverdesc': 'Unconfigured PyLink'
-                },
+        },
         'logging':
-                {
-                    'console': 'INFO'
-                },
+        {
+            'console': 'INFO'
+        },
         'servers':
-                # Wildcard defaultdict! This means that
-                # any network name you try will work and return
-                # this basic template:
-                defaultdict(lambda: {'ip': '0.0.0.0',
-                                     'port': 7000,
-                                     'recvpass': "unconfigured",
-                                     'sendpass': "unconfigured",
-                                     'protocol': "null",
-                                     'hostname': "pylink.unconfigured",
-                                     'sid': "000",
-                                     'maxnicklen': 20,
-                                     'sidrange': '0##'
-                                    })
+        # Wildcard defaultdict! This means that
+        # any network name you try will work and return
+        # this basic template:
+        defaultdict(lambda: {'ip': '0.0.0.0',
+                             'port': 7000,
+                             'recvpass': "unconfigured",
+                             'sendpass': "unconfigured",
+                             'protocol': "null",
+                             'hostname': "pylink.unconfigured",
+                             'sid': "000",
+                             'maxnicklen': 20,
+                             'sidrange': '0##'
+                             })
         }
 conf['pylink'] = conf['bot']
 confname = 'unconfigured'
+
 
 def validate(condition, errmsg):
     """Raises ConfigurationError with errmsg unless the given condition is met."""
     if not condition:
         raise ConfigurationError(errmsg)
+
 
 def _log(level, text, *args, logger=None, **kwargs):
     if logger:
@@ -64,11 +67,12 @@ def _log(level, text, *args, logger=None, **kwargs):
     else:
         world._log_queue.append((level, text))
 
+
 def _validate_conf(conf, logger=None):
     """Validates a parsed configuration dict."""
     validate(isinstance(conf, dict),
-            "Invalid configuration given: should be type dict, not %s."
-            % type(conf).__name__)
+             "Invalid configuration given: should be type dict, not %s."
+             % type(conf).__name__)
 
     if 'pylink' in conf and 'bot' in conf:
         _log(logging.WARNING, "Since PyLink 1.2, the 'pylink:' and 'bot:' configuration sections have been condensed "
@@ -106,11 +110,12 @@ def _validate_conf(conf, logger=None):
         validate(conf.get('permissions'), "New-style accounts enabled but no permissions block was found. You will not be able to administrate your PyLink instance!")
 
     if conf['logging'].get('stdout'):
-         _log(logging.WARNING, 'The log:stdout option is deprecated since PyLink 1.2 in favour of '
-                               '(a more correctly named) log:console. Please update your '
-                               'configuration accordingly!', logger=logger)
+        _log(logging.WARNING, 'The log:stdout option is deprecated since PyLink 1.2 in favour of '
+                              '(a more correctly named) log:console. Please update your '
+                              'configuration accordingly!', logger=logger)
 
     return conf
+
 
 def load_conf(filename, errors_fatal=True, logger=None):
     """Loads a PyLink configuration file from the filename given."""
@@ -137,6 +142,7 @@ def load_conf(filename, errors_fatal=True, logger=None):
         raise
     else:
         return conf
+
 
 def get_database_name(dbname):
     """

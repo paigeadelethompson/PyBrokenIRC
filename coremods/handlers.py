@@ -14,7 +14,7 @@ def handle_whois(irc, source, command, args):
     target = args['target']
     user = irc.users.get(target)
 
-    f = lambda num, source, text: irc.numeric(irc.sid, num, source, text)
+    def f(num, source, text): return irc.numeric(irc.sid, num, source, text)
 
     # Get the server that the target is on.
     server = irc.get_server(target)
@@ -45,10 +45,10 @@ def handle_whois(irc, source, command, args):
                 # Here, we'll want to hide secret/private channels from non-opers
                 # who are not in them.
 
-                if ((irc.cmodes.get('secret'), None) in c.modes or \
-                    (irc.cmodes.get('private'), None) in c.modes) \
-                    and not (source_is_oper or source in c.users):
-                        continue
+                if ((irc.cmodes.get('secret'), None) in c.modes or
+                        (irc.cmodes.get('private'), None) in c.modes) \
+                        and not (source_is_oper or source in c.users):
+                    continue
 
                 # Show the highest prefix mode like a regular IRCd does, if there are any.
                 prefixes = c.get_prefix_modes(target)
@@ -123,7 +123,10 @@ def handle_whois(irc, source, command, args):
 
     # 318: End of WHOIS.
     f(318, source, "%s :End of /WHOIS list" % nick)
+
+
 utils.add_hook(handle_whois, 'WHOIS')
+
 
 def handle_mode(irc, source, command, args):
     """Protect against forced deoper attempts."""
@@ -134,7 +137,10 @@ def handle_mode(irc, source, command, args):
     if irc.is_internal_client(target) and not irc.is_internal_client(source):
         if ('-o', None) in modes and (target == irc.pseudoclient.uid or not irc.is_manipulatable_client(target)):
             irc.mode(irc.sid, target, {('+o', None)})
+
+
 utils.add_hook(handle_mode, 'MODE')
+
 
 def handle_operup(irc, source, command, args):
     """Logs successful oper-ups on networks."""
@@ -142,7 +148,9 @@ def handle_operup(irc, source, command, args):
     log.debug("(%s) Successful oper-up (opertype %r) from %s", irc.name, otype, irc.get_hostmask(source))
     irc.users[source].opertype = otype
 
+
 utils.add_hook(handle_operup, 'CLIENT_OPERED')
+
 
 def handle_services_login(irc, source, command, args):
     """Sets services login status for users."""
@@ -152,20 +160,28 @@ def handle_services_login(irc, source, command, args):
     except KeyError:  # User doesn't exist
         log.debug("(%s) Ignoring early account name setting for %s (UID hasn't been sent yet)", irc.name, source)
 
+
 utils.add_hook(handle_services_login, 'CLIENT_SERVICES_LOGIN')
+
 
 def handle_version(irc, source, command, args):
     """Handles requests for the PyLink server version."""
     # 351 syntax is usually "<server version>. <server hostname> :<anything else you want to add>
     fullversion = irc.version()
     irc.numeric(irc.sid, 351, source, fullversion)
+
+
 utils.add_hook(handle_version, 'VERSION')
+
 
 def handle_time(irc, source, command, args):
     """Handles requests for the PyLink server time."""
     timestring = time.ctime()
     irc.numeric(irc.sid, 391, source, '%s :%s' % (irc.hostname(), timestring))
+
+
 utils.add_hook(handle_time, 'TIME')
+
 
 def _state_cleanup_core(irc, source, channel):
     """
@@ -185,19 +201,26 @@ def _state_cleanup_core(irc, source, channel):
             irc._remove_client(source)
 
     # Clear empty non-permanent channels.
-    if channel in irc.channels and not (irc._channels[channel].users or ((irc.cmodes.get('permanent'), None) \
-            in irc._channels[channel].modes)):
+    if channel in irc.channels and not (irc._channels[channel].users or ((irc.cmodes.get('permanent'), None)
+                                                                         in irc._channels[channel].modes)):
         log.debug('(%s) state_cleanup: removing empty channel %s', irc.name, channel)
         del irc._channels[channel]
+
 
 def _state_cleanup_part(irc, source, command, args):
     for channel in args['channels']:
         _state_cleanup_core(irc, source, channel)
+
+
 utils.add_hook(_state_cleanup_part, 'PART', priority=-100)
+
 
 def _state_cleanup_kick(irc, source, command, args):
     _state_cleanup_core(irc, args['target'], args['channel'])
+
+
 utils.add_hook(_state_cleanup_kick, 'KICK', priority=-100)
+
 
 def _state_cleanup_mode(irc, source, command, args):
     """
@@ -212,4 +235,6 @@ def _state_cleanup_mode(irc, source, command, args):
             log.debug('(%s) _state_cleanup_mode: deleting empty channel %s as %s was set', irc.name, target, mode)
             del irc._channels[target]
             return False  # Block further hooks from running
+
+
 utils.add_hook(_state_cleanup_mode, 'MODE', priority=10000)

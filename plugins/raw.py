@@ -6,6 +6,7 @@ from pylinkirc.coremods import permissions
 from pylinkirc.log import log
 from pylinkirc import conf
 
+
 @utils.add_cmd
 def raw(irc, source, args):
     """<text>

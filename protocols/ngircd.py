@@ -39,7 +39,7 @@ class NgIRCdProtocol(IRCS2SProtocol):
         # attempts to set user modes fail.
         self.protocol_caps |= {'slash-in-hosts', 'underscore-in-hosts'}
 
-    ### Commands
+    # Commands
 
     def post_connect(self):
         self.send('PASS %s 0210-IRC+ PyLink|%s:CHLMoX' % (self.serverdata['sendpass'], __version__))
@@ -89,8 +89,8 @@ class NgIRCdProtocol(IRCS2SProtocol):
         })
 
     def spawn_client(self, nick, ident='null', host='null', realhost=None, modes=set(),
-            server=None, ip='0.0.0.0', realname=None, ts=None, opertype='IRC Operator',
-            manipulatable=False):
+                     server=None, ip='0.0.0.0', realname=None, ts=None, opertype='IRC Operator',
+                     manipulatable=False):
         """
         Spawns a new client with the given options.
 
@@ -268,7 +268,7 @@ class NgIRCdProtocol(IRCS2SProtocol):
 
             self.apply_modes(channel, (('+%s' % prefix, uid) for prefix in userpair[0]))
 
-            nicks_to_send.append(''.join(self.prefixmodes[modechar] for modechar in userpair[0]) + \
+            nicks_to_send.append(''.join(self.prefixmodes[modechar] for modechar in userpair[0]) +
                                  self._expandPUID(userpair[1]))
 
         if nicks_to_send:
@@ -329,7 +329,7 @@ class NgIRCdProtocol(IRCS2SProtocol):
             if not self.is_internal_client(target):
                 self.call_hooks([self.sid, 'CHGNAME', {'target': target, 'newgecos': text}])
 
-    ### Handlers
+    # Handlers
 
     def handle_376(self, source, command, args):
         # 376 is used to denote end of server negotiation - we send our info back at this point.
@@ -341,7 +341,7 @@ class NgIRCdProtocol(IRCS2SProtocol):
         f('005', 'NETWORK=%s :is my network name' % self.get_full_network_name())
         f('005', 'RFC2812 IRCD=PyLink CHARSET=UTF-8 CASEMAPPING=%s PREFIX=%s CHANTYPES=# '
           'CHANMODES=%s,%s,%s,%s :are supported on this server' % (self.casemapping, self._caps['PREFIX'],
-          self.cmodes['*A'], self.cmodes['*B'], self.cmodes['*C'], self.cmodes['*D']))
+                                                                   self.cmodes['*A'], self.cmodes['*B'], self.cmodes['*C'], self.cmodes['*D']))
         f('005', 'CHANNELLEN NICKLEN=%s EXCEPTS=E INVEX=I :are supported on this server' % self.maxnicklen)
 
         # 376 (end of MOTD) marks the end of extended server negotiation per
@@ -565,5 +565,6 @@ class NgIRCdProtocol(IRCS2SProtocol):
         else:
             # Only send the SERVER hook if this isn't the initial connection.
             return {'name': servername, 'sid': None, 'text': serverdesc}
+
 
 Class = NgIRCdProtocol

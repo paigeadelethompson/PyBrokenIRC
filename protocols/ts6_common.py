@@ -48,13 +48,13 @@ class TS6SIDGenerator():
         for idx, char in enumerate(query):
             # Iterate over each character in the query string we got, along
             # with its index in the string.
-            assert char in (string.digits+string.ascii_uppercase+"#"), \
+            assert char in (string.digits + string.ascii_uppercase + "#"), \
                 "Invalid character %r found." % char
             if char == '#':
                 if idx == 0:  # The first char be only digits
                     self.allowedchars[idx] = string.digits
                 else:
-                    self.allowedchars[idx] = string.digits+string.ascii_uppercase
+                    self.allowedchars[idx] = string.digits + string.ascii_uppercase
                 self.iters[idx] = iter(self.allowedchars[idx])
                 self.output[idx] = self.allowedchars[idx][0]
                 next(self.iters[idx])
@@ -70,12 +70,12 @@ class TS6SIDGenerator():
         try:
             self.output[pos] = next(it)
         except TypeError:  # This position is not an iterator, but a string.
-            self.increment(pos-1)
+            self.increment(pos - 1)
         except StopIteration:
             self.output[pos] = self.allowedchars[pos][0]
             self.iters[pos] = iter(self.allowedchars[pos])
             next(self.iters[pos])
-            self.increment(pos-1)
+            self.increment(pos - 1)
 
     def next_sid(self):
         """
@@ -87,16 +87,18 @@ class TS6SIDGenerator():
         sid = ''.join(self.output)
         return sid
 
-class TS6UIDGenerator(UIDGenerator):
-     """Implements an incremental TS6 UID Generator."""
 
-     def __init__(self, sid):
-         # TS6 UIDs are 6 characters in length (9 including the SID).
-         # They go from ABCDEFGHIJKLMNOPQRSTUVWXYZ -> 0123456789 -> wrap around:
-         # e.g. AAAAAA, AAAAAB ..., AAAAA8, AAAAA9, AAAABA, etc.
-         uidchars = string.ascii_uppercase + string.digits
-         length = 6
-         super().__init__(uidchars, length, sid)
+class TS6UIDGenerator(UIDGenerator):
+    """Implements an incremental TS6 UID Generator."""
+
+    def __init__(self, sid):
+        # TS6 UIDs are 6 characters in length (9 including the SID).
+        # They go from ABCDEFGHIJKLMNOPQRSTUVWXYZ -> 0123456789 -> wrap around:
+        # e.g. AAAAAA, AAAAAB ..., AAAAA8, AAAAA9, AAAABA, etc.
+        uidchars = string.ascii_uppercase + string.digits
+        length = 6
+        super().__init__(uidchars, length, sid)
+
 
 class TS6BaseProtocol(IRCS2SProtocol):
     def __init__(self, *args, **kwargs):
@@ -113,7 +115,7 @@ class TS6BaseProtocol(IRCS2SProtocol):
         # support.
         self.protocol_caps |= {'has-statusmsg'}
 
-    ### OUTGOING COMMANDS
+    # OUTGOING COMMANDS
 
     def kill(self, numeric, target, reason):
         """Sends a kill from a PyLink client/server."""
@@ -198,7 +200,7 @@ class TS6BaseProtocol(IRCS2SProtocol):
             self._send_with_prefix(source, 'AWAY')
         self.users[source].away = text
 
-    ### HANDLERS
+    # HANDLERS
 
     def handle_knock(self, numeric, command, args):
         """Handles channel KNOCKs."""

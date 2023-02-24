@@ -16,6 +16,7 @@ SELECT_TIMEOUT = 0.5
 
 selector = selectors.DefaultSelector()
 
+
 def _process_conns():
     """Main loop which processes connected sockets."""
 
@@ -25,9 +26,10 @@ def _process_conns():
             try:
                 if mask & selectors.EVENT_READ and not irc._aborted.is_set():
                     irc._run_irc()
-            except:
+            except BaseException:
                 log.exception('Error in select driver loop:')
                 continue
+
 
 def register(irc):
     """
@@ -35,6 +37,7 @@ def register(irc):
     """
     log.debug('selectdriver: registering %s for network %s', irc._socket, irc.name)
     selector.register(irc._socket, selectors.EVENT_READ, data=irc)
+
 
 def unregister(irc):
     """
@@ -45,6 +48,7 @@ def unregister(irc):
         selector.unregister(irc._socket)
     else:
         log.debug('selectdriver: skipping de-registering %s for network %s', irc._socket, irc.name)
+
 
 def start():
     """

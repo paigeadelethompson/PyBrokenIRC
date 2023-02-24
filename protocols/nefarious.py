@@ -16,4 +16,5 @@ class NefariousProtocol(P10Protocol):
                     "as this migration stub will be removed in a future version.",
                     self.name)
 
+
 Class = NefariousProtocol

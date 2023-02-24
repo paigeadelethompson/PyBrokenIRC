@@ -27,6 +27,7 @@ db = datastore.store
 default_permissions = {"$ircop": ['automode.manage.relay_owned', 'automode.sync.relay_owned',
                                   'automode.list']}
 
+
 def _join_db_channels(irc):
     """
     Joins the Automode service client to channels on the current network in its DB.
@@ -41,6 +42,7 @@ def _join_db_channels(irc):
         if netname == irc.name:
             modebot.add_persistent_channel(irc, 'automode', channel)
 
+
 def main(irc=None):
     """Main function, called during plugin loading."""
 
@@ -54,11 +56,13 @@ def main(irc=None):
         for ircobj in world.networkobjects.values():
             _join_db_channels(ircobj)
 
+
 def die(irc=None):
     """Saves the Automode database and quit."""
     datastore.die()
     permissions.remove_default_permissions(default_permissions)
     utils.unregister_service('automode')
+
 
 def _check_automode_access(irc, uid, channel, command):
     """Checks the caller's access to Automode."""
@@ -75,13 +79,13 @@ def _check_automode_access(irc, uid, channel, command):
     baseperm = 'automode.%s' % command
     try:
         # First, check the catch all and channel permissions.
-        perms = [baseperm, baseperm+'.*', '%s.%s' % (baseperm, channel)]
+        perms = [baseperm, baseperm + '.*', '%s.%s' % (baseperm, channel)]
         return permissions.check_permissions(irc, uid, perms)
     except utils.NotAuthorizedError:
         if not command.startswith('remote'):
             # Relay-based ACL checking only works with local calls.
             log.debug('(%s) Automode: falling back to automode.%s.relay_owned', irc.name, command)
-            permissions.check_permissions(irc, uid, [baseperm+'.relay_owned'], also_show=perms)
+            permissions.check_permissions(irc, uid, [baseperm + '.relay_owned'], also_show=perms)
 
             relay = world.plugins.get('relay')
             if relay is None:
@@ -93,6 +97,7 @@ def _check_automode_access(irc, uid, channel, command):
             return True
         raise
 
+
 def match(irc, channel, uids=None):
     """
     Set modes on matching users. If uids is not given, check all users in the channel and give
@@ -100,7 +105,7 @@ def match(irc, channel, uids=None):
     """
     if isinstance(channel, int) or str(channel).startswith(tuple(string.digits)):
         channel = '#' + str(channel)  # Mangle channels on networks where they're stored as an ID
-    dbentry = db.get(irc.name+channel)
+    dbentry = db.get(irc.name + channel)
     if not irc.has_cap('has-irc-modes'):
         log.debug('(%s) automode: skipping match() because IRC modes are not supported on this protocol', irc.name)
         return
@@ -120,7 +125,7 @@ def match(irc, channel, uids=None):
             if irc.match_host(mask, uid):
                 # User matched a mask. Filter the mode list given to only those that are valid
                 # prefix mode characters.
-                outgoing_modes += [('+'+mode, uid) for mode in modes if mode in irc.prefixmodes]
+                outgoing_modes += [('+' + mode, uid) for mode in modes if mode in irc.prefixmodes]
                 log.debug("(%s) automode: Filtered mode list of %s to %s (protocol:%s)",
                           irc.name, modes, outgoing_modes, irc.protoname)
 
@@ -136,13 +141,17 @@ def match(irc, channel, uids=None):
 
         # Create a hook payload to support plugins like relay.
         irc.call_hooks([modebot_uid, 'AUTOMODE_MODE',
-                      {'target': channel, 'modes': outgoing_modes, 'parse_as': 'MODE'}])
+                        {'target': channel, 'modes': outgoing_modes, 'parse_as': 'MODE'}])
+
 
 def handle_endburst(irc, source, command, args):
     """ENDBURST hook handler - used to join the Automode service to channels where it has entries."""
     if source == irc.uplink:
         _join_db_channels(irc)
+
+
 utils.add_hook(handle_endburst, 'ENDBURST')
+
 
 def handle_join(irc, source, command, args):
     """
@@ -152,9 +161,11 @@ def handle_join(irc, source, command, args):
     channel = irc.to_lower(args['channel'])
     match(irc, channel, args['users'])
 
+
 utils.add_hook(handle_join, 'JOIN')
 utils.add_hook(handle_join, 'PYLINK_RELAY_JOIN')  # Handle the relay version of join
 utils.add_hook(handle_join, 'PYLINK_SERVICE_JOIN')  # And the version for service bots
+
 
 def handle_services_login(irc, source, command, args):
     """
@@ -164,8 +175,10 @@ def handle_services_login(irc, source, command, args):
         # Look at all the users' channels for any possible changes.
         match(irc, channel, [source])
 
+
 utils.add_hook(handle_services_login, 'CLIENT_SERVICES_LOGIN')
 utils.add_hook(handle_services_login, 'PYLINK_RELAY_SERVICES_LOGIN')
+
 
 def _get_channel_pair(irc, source, chanpair, perm=None):
     """
@@ -200,6 +213,7 @@ def _get_channel_pair(irc, source, chanpair, perm=None):
 
     return (ircobj, channel)
 
+
 def setacc(irc, source, args):
     """<channel/chanpair> <mask> <mode list>
 
@@ -233,7 +247,7 @@ def setacc(irc, source, args):
     # Database entries for any network+channel pair are automatically created using
     # defaultdict. Note: string keys are used here instead of tuples so they can be
     # exported easily as JSON.
-    dbentry = db[ircobj.name+channel]
+    dbentry = db[ircobj.name + channel]
 
     modes = modes.lstrip('+')  # remove extraneous leading +'s
     dbentry[mask] = modes
@@ -243,7 +257,9 @@ def setacc(irc, source, args):
     # Join the Automode bot to the channel persistently.
     modebot.add_persistent_channel(ircobj, 'automode', channel)
 
+
 modebot.add_cmd(setacc, aliases=('setaccess', 'set'), featured=True)
+
 
 def delacc(irc, source, args):
     """<channel/chanpair> <mask or range string>
@@ -261,7 +277,7 @@ def delacc(irc, source, args):
     else:
         ircobj, channel = _get_channel_pair(irc, source, chanpair, perm='manage')
 
-    dbentry = db.get(ircobj.name+channel)
+    dbentry = db.get(ircobj.name + channel)
 
     if dbentry is None:
         error(irc, "No Automode access entries exist for \x02%s\x02." % channel)
@@ -294,10 +310,12 @@ def delacc(irc, source, args):
     # Remove channels if no more entries are left.
     if not dbentry:
         log.debug("Automode: purging empty channel pair %s/%s", ircobj.name, channel)
-        del db[ircobj.name+channel]
+        del db[ircobj.name + channel]
         modebot.remove_persistent_channel(ircobj, 'automode', channel)
 
+
 modebot.add_cmd(delacc, aliases=('delaccess', 'del'), featured=True)
+
 
 def listacc(irc, source, args):
     """<channel/chanpair>
@@ -311,7 +329,7 @@ def listacc(irc, source, args):
     else:
         ircobj, channel = _get_channel_pair(irc, source, chanpair, perm='list')
 
-    dbentry = db.get(ircobj.name+channel)
+    dbentry = db.get(ircobj.name + channel)
     if not dbentry:
         error(irc, "No Automode access entries exist for \x02%s\x02." % channel)
         return
@@ -325,7 +343,9 @@ def listacc(irc, source, args):
             reply(irc, "[%s] \x02%s\x02 has modes +\x02%s\x02" % (entrynum, mask, modes), private=True)
         reply(irc, "End of Automode entries list.", private=True)
 
+
 modebot.add_cmd(listacc, featured=True, aliases=('listaccess',))
+
 
 def save(irc, source, args):
     """takes no arguments.
@@ -335,7 +355,9 @@ def save(irc, source, args):
     datastore.save()
     reply(irc, 'Done.')
 
+
 modebot.add_cmd(save)
+
 
 def syncacc(irc, source, args):
     """<channel/chanpair>
@@ -355,7 +377,9 @@ def syncacc(irc, source, args):
 
     reply(irc, 'Done.')
 
+
 modebot.add_cmd(syncacc, featured=True, aliases=('sync', 'syncaccess'))
+
 
 def clearacc(irc, source, args):
     """<channel>
@@ -371,12 +395,13 @@ def clearacc(irc, source, args):
     else:
         ircobj, channel = _get_channel_pair(irc, source, chanpair, perm='clear')
 
-    if db.get(ircobj.name+channel):
-        del db[ircobj.name+channel]
+    if db.get(ircobj.name + channel):
+        del db[ircobj.name + channel]
         log.info('(%s) %s cleared modes on %s', ircobj.name, irc.get_hostmask(source), channel)
         reply(irc, "Done. Removed all Automode access entries for \x02%s\x02." % channel)
         modebot.remove_persistent_channel(ircobj, 'automode', channel)
     else:
         error(irc, "No Automode access entries exist for \x02%s\x02." % channel)
+
 
 modebot.add_cmd(clearacc, aliases=('clearaccess', 'clear'), featured=True)
