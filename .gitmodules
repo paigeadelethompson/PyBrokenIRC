@@ -1,3 +1,6 @@
-[submodule "test/parser_tests"]
-	path = test/parser-tests
+[submodule "tests/parser-tests"]
+	path = tests/parser-tests
 	url = https://github.com/ircdocs/parser-tests
+[submodule "docs"]
+	path = docs
+	url = https://github.com/paigeadelethompson/PyLink.wiki.git

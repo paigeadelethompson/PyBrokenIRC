@@ -1,0 +1,55 @@
+[tool.poetry]
+name = "pybrokenirc"
+version = "3.1.0"
+description = "Not unlike Fido LTS fork of PyLinkIRC"
+authors = [
+  "Ken Spencer <me@iotaspencer.me>",
+  "Austin Ellis <siniStar@IRC4Fun.net>",
+  "Jordy Zomer <jordy@simplyhacker.com>",
+  "Paige Thompson <paige@paige.bio>",
+  "Ian Carpenter <sazpaimon@x-cult.org>",
+  "Celelibi <celelibi@gmail.com>",
+  "James Lu <james@overdrivenetworks.com>",
+  "Mitchell Cooper <githubspam@rlygd.net>",
+  "Daniel Oaks <daniel@danieloaks.net>"]
+license = "MPL 2.0"
+readme = "README.md"
+homepage = "https://github.com/paigeadelethompson/pybrokenirc"
+documentation = "https://github.com/paigeadelethompson/pybrokenirc/wiki/relay-quickstart"
+repository = "https://github.com/paigeadelethompson/pylink.git"
+keywords = ["IRCd", "Bridging", "TS6", "Unreal", "Nefarious", "ngircd", "p10"]
+maintainers = ["Paige Thompson <paige@paige.bio>"]
+classifiers = [
+  "Programming Language :: Python"
+]
+packages = [{ include = "pylinkirc", from = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+configparser = "*"
+cachetools = "^5.3.0"
+pyyaml = "^6.0"
+passlib = "^1.7.4"
+autopep8 = "^2.0.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "*"
+autoflake8 = "*"
+ipython = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+ircd = "pybrokenirc.launcher:main"
+ircd-mkpasswd = "pybrokenirc.mkpasswd:main"
+
+[tool.autopep8]
+max_line_length = 120
+ignore = ["E501", "W6"]
+in-place = false
+diff = true
+recursive = true
+aggressive = 3
+exit-code = 1

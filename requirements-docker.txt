@@ -1,4 +1,0 @@
-cachetools
-passlib
-pyyaml
-setuptools

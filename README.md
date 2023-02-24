@@ -1,29 +1,5 @@
-# PyLink IRC Services
-
-## END OF LIFE NOTICE: This project is no longer maintained. So long and thanks for all the fish.
-
-<!--
-[![Latest stable release](https://img.shields.io/github/v/tag/jlu5/pylink?label=stable&color=1a1)](https://github.com/PyLink/PyLink/tree/master)
-[![PyPI version](https://img.shields.io/pypi/v/pylinkirc.svg?maxAge=2592000)](https://pypi.python.org/pypi/pylinkirc/)
-[![Docker image version](https://img.shields.io/docker/v/jlu5/pylink/latest?label=docker)](https://hub.docker.com/r/jlu5/pylink)
-[![Supported Python versions](https://img.shields.io/badge/python-3.7%20and%20later-50e)](https://www.python.org/downloads/)
--->
-
-PyLink is an extensible, plugin-based IRC services framework written in Python. It aims to be:
-
-1) a transparent server-side relayer between IRC networks.
-
-2) a versatile framework for developing IRC services.
-
-PyLink is licensed under the Mozilla Public License, version 2.0 ([LICENSE.MPL2](LICENSE.MPL2)). The [corresponding documentation](docs/) is licensed under the Creative Attribution-ShareAlike 4.0 International License. ([LICENSE.CC-BY-SA-4.0](LICENSE.CC-BY-SA-4.0))
-
-## Getting help
-
-**First, MAKE SURE you've read the [FAQ](docs/faq.md)!**
-
-**When upgrading between major versions, remember to read the [release notes](RELNOTES.md) for any breaking changes!**
-
-Please report any bugs you find to the [issue tracker](https://github.com/PyLink/PyLink/issues). Pull requests are likewise welcome.
+# Figaro IRC bridge
+This is a WIP. Many plugins have been cut from this source tree. Plugins can be somebody else's problem.
 
 ## Installation
 

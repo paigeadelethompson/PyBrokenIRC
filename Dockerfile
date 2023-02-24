@@ -1,17 +1,27 @@
-FROM python:3-alpine
+FROM python
 
-RUN adduser -D -H -u 10000 pylink
+RUN apt -y update
 
-VOLUME /pylink
+RUN apt -y install
 
-COPY . /pylink-src
+WORKDIR /tmp/install
 
-RUN cd /pylink-src && pip3 install --no-cache-dir -r requirements-docker.txt
-RUN cd /pylink-src && python3 setup.py install
-RUN rm -r /pylink-src
+COPY . .
 
-USER pylink
-WORKDIR /pylink
+RUN python -m pip install --upgrade pip
 
-# Run in no-PID file mode by default
-CMD ["pylink", "-n"]
+RUN pip install poetry autopep8 pytest
+
+RUN autopep8 src/ tests/
+
+RUN poetry install
+
+RUN poetry run pytest
+
+RUN poetry build
+
+RUN pip install dist/*.whl
+
+WORKDIR / 
+
+ENTRYPOINT [ "ircd" ]
