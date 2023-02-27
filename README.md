@@ -27,3 +27,6 @@ If you are a developer and want to help make PyLink more portable, patches are w
 ```bash
 $ docker run -v $HOME/pylink:/pylink jlu5/pylink
 ```
+
+## More Information
+Documentation is available in the Wiki: [https://github.com/paigeadelethompson/PyBrokenIRC/wiki](https://github.com/paigeadelethompson/PyBrokenIRC/wiki)
