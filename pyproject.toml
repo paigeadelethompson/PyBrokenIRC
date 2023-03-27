@@ -38,7 +38,7 @@ unidecode = "^1.3.6"
 pytest = "*"
 autoflake8 = "*"
 ipython = "*"
-monkeytype = "^22.2.0"
+monkeytype = "^23.3.0"
 
 [build-system]
 requires = ["poetry-core"]
