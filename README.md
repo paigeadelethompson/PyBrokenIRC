@@ -1,3 +1,6 @@
+# Shelved 
+until further notice 
+
 # PyBrokenIRC Bridge
 This is a WIP. Many plugins have been cut from this source tree. Plugins can be somebody else's problem.
 
